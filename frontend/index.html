@@ -11,11 +11,13 @@
   <!-- NAVBAR -->
   <nav class="lp-nav">
     <div class="lp-nav-inner">
-      <div class="lp-logo">ClinMatch AI</div>
-      <div class="lp-links">
-        <a href="index.html" class="active">Home</a>
-        <a href="#how-it-works">How It Works</a>
-        <a href="#about">About</a>
+      <div style="display:flex; align-items:center; gap:24px;">
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
+        <div class="lp-links">
+          <a href="index.html" class="active">Home</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About</a>
+        </div>
       </div>
       <a href="login.html" class="btn btn-ghost btn-sm">Login</a>
     </div>
@@ -88,5 +90,6 @@
 
   <footer>ClinMatch AI &nbsp;|&nbsp; Built for COHERENCE-26 &nbsp;|&nbsp; Track 1: Health &amp; Digital Wellbeing</footer>
 
+  <script src="js/main.js"></script>
 </body>
 </html>

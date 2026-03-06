@@ -12,17 +12,25 @@
   <nav class="dash-nav">
     <div class="dash-nav-inner">
       <div style="display:flex; align-items:center; gap:32px;">
-        <div class="lp-logo">ClinMatch AI</div>
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
         <div class="dash-links">
           <a href="researcher-dashboard.html" class="active">Dashboard</a>
           <a href="researcher-trial.html">My Trials</a>
-          <a href="#">Inquiries</a>
+          <a href="researcher-inquiry.html">Inquiries</a>
         </div>
       </div>
       <div class="dash-right">
         <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
-        <span style="font-size:13px; color:var(--text);">Dr. Smith ▼</span>
-        <a href="login.html" class="btn btn-ghost btn-sm">Logout</a>
+        <span class="nav-user-display" id="navUserDisplay">—</span>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">R</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -30,7 +38,7 @@
   <!-- CONTENT -->
   <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
 
-    <h1 style="font-size:26px; margin-bottom:4px;">Welcome back, Dr. Smith</h1>
+    <h1 style="font-size:26px; margin-bottom:4px;" id="welcomeHeading">Welcome back</h1>
     <p class="text-muted page-subtitle">AIIMS Mumbai — Researcher Portal</p>
 
     <!-- STATS -->

@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
@@ -28,10 +30,17 @@ from ocr_parser import extract_from_file
 app = FastAPI(title="ClinMatch AI", version="1.0.0")
 
 # ── CORS ─────────────────────────────────────────────
-# Allows React frontend to call this backend
+# Allow frontend from common dev ports (file:// and different ports)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5500",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5500",
+        "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -40,6 +49,13 @@ app.add_middleware(
 # ── TEMP UPLOAD FOLDER ───────────────────────────────
 UPLOAD_DIR = "../data/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# ── SERVE FRONTEND ───────────────────────────────────
+# Open http://localhost:8000/ or http://localhost:8000/app/ to use the app
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(_BASE_DIR, "..", "frontend")
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/app", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 
 # ════════════════════════════════════════════════════
@@ -162,7 +178,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         user_id          = str(uuid.uuid4()),
         email            = req.email,
         hashed_password  = hash_password(req.password),
-        role             = req.role,
+        role             = req.role.lower(),   # always store lowercase
         full_name        = req.full_name,
         institution      = req.institution
     )
@@ -182,7 +198,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(
         User.email == req.email,
-        User.role  == req.role
+        User.role  == req.role.lower()   # compare lowercase to lowercase
     ).first()
 
     if not user:
@@ -838,12 +854,24 @@ def get_stats(db: Session = Depends(get_db)):
 
 
 # ════════════════════════════════════════════════════
-# HEALTH CHECK
+# ROUTES & REDIRECTS
 # ════════════════════════════════════════════════════
 @app.get("/")
 def root():
+    """Redirect to the app UI."""
+    return RedirectResponse(url="/app/", status_code=302)
+
+@app.get("/app")
+def app_redirect():
+    """Redirect /app to /app/ (trailing slash required for StaticFiles)."""
+    return RedirectResponse(url="/app/", status_code=302)
+
+@app.get("/api/status")
+def api_status():
+    """API health check for programmatic access."""
     return {
         "message": "ClinMatch AI API is running",
         "version": "1.0.0",
-        "docs":    "http://localhost:8000/docs"
+        "docs":    "/docs",
+        "app":     "/app/"
     }

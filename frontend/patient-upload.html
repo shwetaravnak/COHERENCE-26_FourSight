@@ -8,6 +8,9 @@
 </head>
 <body>
 
+  <div style="padding:16px 32px;">
+    <a href="patient-method.html" class="back-link">← Back</a>
+  </div>
   <!-- PROGRESS BAR -->
   <div class="progress-bar">
     <div class="progress-steps">
@@ -34,17 +37,13 @@
     <h1 style="font-size:28px; margin-bottom:6px;">Upload Your Medical Report</h1>
     <p class="text-muted" style="font-size:14px; margin-bottom:32px;">We support PDF, JPG, and PNG formats</p>
 
-    <!-- UPLOAD ZONE -->
-    <div class="upload-zone" id="uploadZone"
-         ondragover="event.preventDefault(); this.classList.add('dragover')"
-         ondragleave="this.classList.remove('dragover')"
-         ondrop="handleDrop(event, () => window.location.href='patient-ocr-confirm.html')">
+    <!-- UPLOAD ZONE (drop/upload handled by initUploadPage in main.js) -->
+    <div class="upload-zone" id="uploadZone">
       <div class="upload-icon">☁️</div>
       <h3 style="font-size:17px; margin-bottom:8px;">Drag &amp; drop your file here</h3>
       <div class="text-muted" style="margin:12px 0; font-size:13px;">or</div>
       <label style="cursor:pointer;">
-        <input type="file" style="display:none;" accept=".pdf,.jpg,.jpeg,.png"
-               onchange="simulateUpload(() => window.location.href='patient-ocr-confirm.html')">
+        <input type="file" id="fileInput" style="display:none;" accept=".pdf,.jpg,.jpeg,.png">
         <span class="btn btn-ghost btn-sm">Browse Files</span>
       </label>
       <div class="text-muted" style="margin-top:12px; font-size:12px;">PDF, JPG, PNG &bull; Maximum 10MB</div>

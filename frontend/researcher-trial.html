@@ -12,16 +12,25 @@
   <nav class="dash-nav">
     <div class="dash-nav-inner">
       <div style="display:flex; align-items:center; gap:32px;">
-        <div class="lp-logo">ClinMatch AI</div>
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
         <div class="dash-links">
           <a href="researcher-dashboard.html">Dashboard</a>
           <a href="researcher-trial.html" class="active">My Trials</a>
-          <a href="#">Inquiries</a>
+          <a href="researcher-inquiry.html">Inquiries</a>
         </div>
       </div>
       <div class="dash-right">
         <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
-        <a href="login.html" class="btn btn-ghost btn-sm">Logout</a>
+        <span class="nav-user-display" id="navUserDisplay">—</span>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">R</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -32,9 +41,22 @@
 
     <!-- TRIAL SELECTOR -->
     <div style="margin-bottom:24px;">
-      <select class="input-field" style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px;">
-        <option>T001 — Diabetes Glucose Control Study</option>
-        <option>T005 — RA Biologic Study</option>
+      <select id="trialSelector" class="input-field" style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px;">
+        <option value="T001">T001 — Diabetes Glucose Control Study</option>
+        <option value="T002">T002 — Hypertension Management Trial</option>
+        <option value="T003">T003 — Breast Cancer Immunotherapy Study</option>
+        <option value="T004">T004 — COPD Bronchodilator Efficacy Trial</option>
+        <option value="T005">T005 — RA Biologic Study</option>
+        <option value="T006">T006 — Depression SSRI Optimization Trial</option>
+        <option value="T007">T007 — Asthma Biologic Therapy Study</option>
+        <option value="T008">T008 — CKD Progression Study</option>
+        <option value="T009">T009 — Parkinson's Neuroprotection Trial</option>
+        <option value="T010">T010 — Lupus Flare Prevention Study</option>
+        <option value="T011">T011 — Type 2 Diabetes Weight Loss Study</option>
+        <option value="T012">T012 — Hypertension Renal Protection Trial</option>
+        <option value="T013">T013 — Asthma Transition Study</option>
+        <option value="T014">T014 — Depression Cognitive Therapy Study</option>
+        <option value="T015">T015 — COPD Pulmonary Rehabilitation Study</option>
       </select>
     </div>
 
@@ -66,7 +88,9 @@
       <select class="filter-select"><option>Sort: Highest Score</option><option>Newest First</option></select>
     </div>
 
-    <!-- PATIENT CARD 1 — NEW INQUIRY -->
+    <!-- PATIENT CARDS (populated by loadResearcherPatients) -->
+    <div id="patientsContainer">
+    <!-- PATIENT CARD 1 — NEW INQUIRY (static placeholder) -->
     <div class="patient-card">
       <div class="left-border" style="background:var(--primary);"></div>
       <div class="patient-card-body">
@@ -135,6 +159,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /patientsContainer -->
 
   </div>
 

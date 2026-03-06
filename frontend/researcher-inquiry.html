@@ -12,7 +12,8 @@
   <nav class="dash-nav">
     <div class="dash-nav-inner">
       <div style="display:flex; align-items:center; gap:32px;">
-        <div class="lp-logo">ClinMatch AI</div>
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
         <div class="dash-links">
           <a href="researcher-dashboard.html">Dashboard</a>
           <a href="researcher-trial.html">My Trials</a>
@@ -21,7 +22,15 @@
       </div>
       <div class="dash-right">
         <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
-        <a href="login.html" class="btn btn-ghost btn-sm">Logout</a>
+        <span class="nav-user-display" id="navUserDisplay">—</span>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">R</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
       </div>
     </div>
   </nav>

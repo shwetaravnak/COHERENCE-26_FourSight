@@ -12,6 +12,9 @@
 </head>
 <body>
 
+  <div style="padding:16px 32px;">
+    <a href="index.html" class="back-link">← Back</a>
+  </div>
   <div class="auth-wrap">
     <div class="auth-card" style="max-width:480px;">
 
@@ -51,7 +54,7 @@
         <a href="#" style="font-size:13px;">Forgot password?</a>
       </div>
 
-      <button id="loginBtn" class="btn btn-primary btn-full" style="padding:13px;" onclick="loginRedirect()">
+      <button id="loginBtn" class="btn btn-primary btn-full" style="padding:13px;">
         Login as Patient
       </button>
 
@@ -63,21 +66,5 @@
   </div>
 
   <script src="js/main.js"></script>
-  <script>
-    let currentRole = 'Patient';
-
-    function selectRole(el, role) {
-      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      currentRole = role;
-      document.getElementById('loginBtn').textContent = 'Login as ' + role;
-    }
-
-    function loginRedirect() {
-      if      (currentRole === 'Patient')    window.location.href = 'patient-method.html';
-      else if (currentRole === 'Researcher') window.location.href = 'researcher-dashboard.html';
-      else                                   window.location.href = 'admin-dashboard.html';
-    }
-  </script>
 </body>
 </html>
