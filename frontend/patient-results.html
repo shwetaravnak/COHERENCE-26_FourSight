@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Your Matched Trials</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- PROGRESS BAR (all done) -->
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="prog-step prog-done"><div class="prog-num">✓</div><div class="prog-label">Choose Method</div></div>
+      <div class="prog-line done"></div>
+      <div class="prog-step prog-done"><div class="prog-num">✓</div><div class="prog-label">Health Details</div></div>
+      <div class="prog-line done"></div>
+      <div class="prog-step prog-done"><div class="prog-num">✓</div><div class="prog-label">Results</div></div>
+    </div>
+  </div>
+
+  <div style="padding:40px 32px; max-width:900px; margin:0 auto;">
+
+    <!-- HEADER -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h1 style="font-size:30px; margin-bottom:4px;">Your Matched Trials</h1>
+        <p class="text-muted" style="font-size:14px;">Found 8 trials matching your profile</p>
+      </div>
+      <span class="pill pill-gray">Age 45 &nbsp;|&nbsp; T2 Diabetes &nbsp;|&nbsp; Mumbai</span>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <select class="filter-select"><option>All Cities</option><option>Mumbai</option><option>Delhi</option></select>
+      <select class="filter-select"><option>All Phases</option><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option></select>
+      <select class="filter-select"><option>All Diseases</option><option>Diabetes</option><option>Hypertension</option></select>
+      <select class="filter-select"><option>Sort: Best Match</option><option>Phase</option><option>Location</option></select>
+    </div>
+
+    <!-- CARD 1 — HIGH MATCH -->
+    <div class="trial-card">
+      <div class="left-border" style="background:var(--success);"></div>
+      <div class="trial-card-body">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <span class="pill pill-green">🟢 87% Match</span>
+          <span class="pill pill-gray">Phase 3</span>
+        </div>
+        <div class="trial-name">Diabetes Glucose Control Study</div>
+        <div class="trial-meta">
+          <span>🏢 PharmaCo Research</span>
+          <span>📍 Mumbai, Delhi, Pune</span>
+        </div>
+        <div class="text-muted" style="font-size:12px; margin-bottom:6px;">Match Score</div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:87%; background:var(--success);"></div></div>
+        <div style="text-align:right; font-size:12px; color:var(--success); margin-top:3px;">87%</div>
+        <div class="criteria-row">
+          <span class="crit-badge crit-ok">✅ Age</span>
+          <span class="crit-badge crit-ok">✅ Diagnosis</span>
+          <span class="crit-badge crit-ok">✅ HbA1c</span>
+          <span class="crit-badge crit-fail">❌ BMI</span>
+          <span class="crit-badge crit-ok">✅ Medication</span>
+        </div>
+        <div class="trial-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('explanationModal')">📋 View Explanation</button>
+          <button class="btn btn-primary btn-sm">★ I'm Interested</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2 — MEDIUM MATCH -->
+    <div class="trial-card">
+      <div class="left-border" style="background:var(--warning);"></div>
+      <div class="trial-card-body">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <span class="pill pill-yellow">🟡 64% Match</span>
+          <span class="pill pill-gray">Phase 2</span>
+        </div>
+        <div class="trial-name">Metformin Efficacy &amp; Dosage Study</div>
+        <div class="trial-meta">
+          <span>🏢 AIIMS Research</span>
+          <span>📍 Mumbai, Hyderabad</span>
+        </div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:64%; background:var(--warning);"></div></div>
+        <div style="text-align:right; font-size:12px; color:var(--warning); margin-top:3px;">64%</div>
+        <div class="criteria-row">
+          <span class="crit-badge crit-ok">✅ Age</span>
+          <span class="crit-badge crit-ok">✅ Diagnosis</span>
+          <span class="crit-badge crit-fail">❌ HbA1c</span>
+          <span class="crit-badge crit-ok">✅ BMI</span>
+          <span class="crit-badge crit-fail">❌ Location</span>
+        </div>
+        <div class="trial-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('explanationModal')">📋 View Explanation</button>
+          <button class="btn btn-primary btn-sm">★ I'm Interested</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3 — LOW MATCH -->
+    <div class="trial-card">
+      <div class="left-border" style="background:var(--error);"></div>
+      <div class="trial-card-body">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <span class="pill pill-red">🔴 31% Match</span>
+          <span class="pill pill-gray">Phase 1</span>
+        </div>
+        <div class="trial-name">Advanced Insulin Therapy Trial</div>
+        <div class="trial-meta">
+          <span>🏢 Tata Memorial</span>
+          <span>📍 Bangalore</span>
+        </div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:31%; background:var(--error);"></div></div>
+        <div style="text-align:right; font-size:12px; color:var(--error); margin-top:3px;">31%</div>
+        <div class="criteria-row">
+          <span class="crit-badge crit-ok">✅ Age</span>
+          <span class="crit-badge crit-fail">❌ Diagnosis</span>
+          <span class="crit-badge crit-fail">❌ HbA1c</span>
+          <span class="crit-badge crit-fail">❌ Location</span>
+          <span class="crit-badge crit-fail">❌ Medication</span>
+        </div>
+        <div class="trial-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('explanationModal')">📋 View Explanation</button>
+          <span class="pill pill-red" style="padding:8px 16px;">Not Eligible</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY INQUIRIES -->
+    <div style="margin-top:36px;">
+      <h2 style="font-size:20px; margin-bottom:16px;">My Inquiries <span class="pill pill-teal" style="font-size:12px;">3</span></h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+        <div class="card">
+          <h4 style="font-size:14px; margin-bottom:8px;">Diabetes Glucose Control Study</h4>
+          <span class="pill pill-yellow">⏳ Pending</span>
+        </div>
+        <div class="card">
+          <h4 style="font-size:14px; margin-bottom:8px;">Cardiac Monitoring Trial</h4>
+          <span class="pill pill-green">✅ Accepted</span>
+          <div style="background:var(--bg); border-left:2px solid var(--success); padding:8px 12px; border-radius:0 4px 4px 0; font-size:12px; color:var(--muted); margin-top:8px; font-style:italic;">
+            "Your profile matches well. Please contact us to schedule an orientation visit."
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:14px; margin-bottom:8px;">Advanced Insulin Therapy</h4>
+          <span class="pill pill-red">❌ Declined</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── EXPLANATION MODAL ─────────────────────────────────── -->
+  <div class="modal-overlay" id="explanationModal">
+    <div class="modal modal-md">
+      <button class="close-modal-btn" onclick="closeModal('explanationModal')" style="position:absolute;top:20px;right:20px;">×</button>
+
+      <div class="modal-header">
+        <div>
+          <h2 style="font-size:20px;">Eligibility Breakdown</h2>
+          <div class="text-teal" style="font-size:13px; margin-top:4px;">Diabetes Glucose Control Study — T001</div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <table class="criteria-table">
+          <thead>
+            <tr><th>Criterion</th><th>Required</th><th>Your Value</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Age</td><td>30–65</td><td>45</td><td>✅</td></tr>
+            <tr><td>HbA1c</td><td>&gt; 7.5</td><td>8.2</td><td>✅</td></tr>
+            <tr><td>Diagnosis</td><td>T2 Diabetes</td><td>T2 Diabetes</td><td>✅</td></tr>
+            <tr><td>BMI</td><td>22–35</td><td style="color:var(--error);">38.1</td><td>❌</td></tr>
+            <tr><td>Heart Disease</td><td>None</td><td>None</td><td>✅</td></tr>
+            <tr><td>Metformin</td><td>Required</td><td>Yes</td><td>✅</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ai-box">
+          <span style="font-size:20px;">🤖</span>
+          <span>You meet <strong>5 of 6 criteria</strong>. Your BMI of 38.1 is above the maximum of 35. You may still apply — researchers review each case individually.</span>
+        </div>
+
+        <div>
+          <div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px;">Score Breakdown</div>
+          <div class="score-row">
+            <span class="score-row-label">Rule Score</span>
+            <div class="score-row-bar"><div class="score-row-fill" style="width:83%; background:var(--success);"></div></div>
+            <span class="score-row-pct text-teal">83%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-row-label">ML Score</span>
+            <div class="score-row-bar"><div class="score-row-fill" style="width:79%; background:var(--primary);"></div></div>
+            <span class="score-row-pct text-teal">79%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-row-label">Final Score</span>
+            <div class="score-row-bar"><div class="score-row-fill" style="width:87%; background:linear-gradient(90deg,var(--success),var(--primary));"></div></div>
+            <span class="score-row-pct text-teal" style="font-weight:700; font-size:15px;">87%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer space-between">
+        <button class="btn btn-ghost" onclick="closeModal('explanationModal')">Close</button>
+        <button class="btn btn-primary">★ I'm Interested</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Trial Detail</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="researcher-dashboard.html">Dashboard</a>
+          <a href="researcher-trial.html" class="active">My Trials</a>
+          <a href="#">Inquiries</a>
+        </div>
+      </div>
+      <div class="dash-right">
+        <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
+        <a href="login.html" class="btn btn-ghost btn-sm">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:1100px; margin:0 auto; padding:32px;">
+
+    <a href="researcher-dashboard.html" class="back-link">← Back to Dashboard</a>
+
+    <!-- TRIAL SELECTOR -->
+    <div style="margin-bottom:24px;">
+      <select class="input-field" style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px;">
+        <option>T001 — Diabetes Glucose Control Study</option>
+        <option>T005 — RA Biologic Study</option>
+      </select>
+    </div>
+
+    <!-- TRIAL INFO CARD -->
+    <div class="trial-info-card">
+      <div class="trial-info-left">
+        <h2 style="font-size:18px; margin-bottom:10px;">Diabetes Glucose Control Study</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <span class="pill pill-teal">Phase 3</span>
+          <span class="pill pill-green">Active</span>
+          <span class="pill pill-gray">Endocrinology</span>
+          <span class="pill pill-gray">PharmaCo Research</span>
+        </div>
+        <div class="text-muted" style="font-size:13px;">📍 Mumbai &nbsp;·&nbsp; Delhi &nbsp;·&nbsp; Pune</div>
+      </div>
+      <div class="trial-info-right">
+        <div class="mini-stat"><div class="val text-teal">12</div><div class="lbl">Matches</div></div>
+        <div class="mini-stat"><div class="val text-success">4</div><div class="lbl">Accepted</div></div>
+        <div class="mini-stat"><div class="val" style="color:var(--warning);">3</div><div class="lbl">Pending</div></div>
+        <div class="mini-stat"><div class="val" style="color:var(--error);">2</div><div class="lbl">Declined</div></div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <select class="filter-select"><option>All Cities</option><option>Mumbai</option><option>Delhi</option></select>
+      <select class="filter-select"><option>All Scores</option><option>80%+</option><option>60–79%</option></select>
+      <select class="filter-select"><option>⏳ Pending Only</option><option>All Statuses</option><option>✅ Accepted</option></select>
+      <select class="filter-select"><option>Sort: Highest Score</option><option>Newest First</option></select>
+    </div>
+
+    <!-- PATIENT CARD 1 — NEW INQUIRY -->
+    <div class="patient-card">
+      <div class="left-border" style="background:var(--primary);"></div>
+      <div class="patient-card-body">
+        <div style="position:absolute; top:16px; right:16px;"><span class="pill pill-red">🔴 NEW INQUIRY</span></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span class="patient-id">#a3f9b2</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="patient-score">87%</span>
+            <span class="pill pill-gray">Mumbai</span>
+          </div>
+        </div>
+        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 45 &nbsp;|&nbsp; Male &nbsp;|&nbsp; Type 2 Diabetes</div>
+        <div class="text-muted" style="font-size:12px; margin-bottom:12px;">HbA1c: 8.2 &nbsp;|&nbsp; BMI: 27.4</div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:87%; background:linear-gradient(90deg,var(--primary),var(--success));"></div></div>
+        <div class="criteria-row">
+          <span class="crit-badge crit-ok">✅ Age</span>
+          <span class="crit-badge crit-ok">✅ Diagnosis</span>
+          <span class="crit-badge crit-ok">✅ HbA1c</span>
+          <span class="crit-badge crit-fail">❌ BMI</span>
+          <span class="crit-badge crit-ok">✅ Medication</span>
+        </div>
+        <div class="patient-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('inquiryModal')">View Details</button>
+          <button class="btn btn-success btn-sm" onclick="openModal('inquiryModal')">✅ Accept</button>
+          <button class="btn btn-danger btn-sm">❌ Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENT CARD 2 — NO INQUIRY -->
+    <div class="patient-card">
+      <div class="left-border" style="background:var(--border);"></div>
+      <div class="patient-card-body">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span class="patient-id">#f8b3d1</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="patient-score" style="color:var(--warning);">72%</span>
+            <span class="pill pill-gray">Delhi</span>
+          </div>
+        </div>
+        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 52 &nbsp;|&nbsp; Female &nbsp;|&nbsp; Type 2 Diabetes</div>
+        <div class="text-muted" style="font-size:12px; margin-bottom:12px;">HbA1c: 7.8 &nbsp;|&nbsp; BMI: 29.1</div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:72%; background:var(--warning);"></div></div>
+        <div class="patient-actions">
+          <button class="btn btn-ghost btn-sm">View Details</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENT CARD 3 — ACCEPTED -->
+    <div class="patient-card">
+      <div class="left-border" style="background:var(--success);"></div>
+      <div class="patient-card-body">
+        <div style="position:absolute; top:16px; right:16px;"><span class="pill pill-green">✅ Accepted</span></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span class="patient-id">#b2d1c4</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="patient-score text-success">91%</span>
+            <span class="pill pill-gray">Mumbai</span>
+          </div>
+        </div>
+        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 38 &nbsp;|&nbsp; Male &nbsp;|&nbsp; Type 2 Diabetes</div>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:91%; background:var(--success);"></div></div>
+        <div class="patient-actions">
+          <button class="btn btn-ghost btn-sm">View Details</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── INQUIRY MODAL ─────────────────────────────────────── -->
+  <div class="modal-overlay" id="inquiryModal">
+    <div class="modal modal-lg" style="position:relative;">
+      <button class="close-modal-btn" onclick="closeModal('inquiryModal')" style="position:absolute;top:20px;right:20px;">×</button>
+
+      <div class="modal-header">
+        <div>
+          <h2 style="font-size:20px;">Inquiry Review</h2>
+          <div class="text-teal" style="font-size:13px; margin-top:4px;">Patient #a3f9b2 — T001 Diabetes Study</div>
+        </div>
+        <span class="pill pill-yellow" style="margin-right:32px;">🔴 Pending</span>
+      </div>
+
+      <!-- TWO COL -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; padding:20px 28px;">
+
+        <!-- LEFT: Patient Profile -->
+        <div>
+          <div class="section-label">Patient Profile</div>
+          <div class="profile-row"><span style="font-size:16px;">👤</span><span class="profile-label">Age</span><span>45</span></div>
+          <div class="profile-row"><span style="font-size:16px;">⚥</span><span class="profile-label">Gender</span><span>Male</span></div>
+          <div class="profile-row"><span style="font-size:16px;">📍</span><span class="profile-label">City</span><span>Mumbai</span></div>
+          <div class="profile-row"><span style="font-size:16px;">🏥</span><span class="profile-label">Diagnosis</span><span>Type 2 Diabetes</span></div>
+          <div class="profile-row"><span style="font-size:16px;">🧪</span><span class="profile-label">HbA1c</span><span>8.2</span></div>
+          <div class="profile-row"><span style="font-size:16px;">⚖️</span><span class="profile-label">BMI</span><span style="color:var(--error);">38.1</span></div>
+          <div class="profile-row"><span style="font-size:16px;">💊</span><span class="profile-label">Medications</span><span>Metformin</span></div>
+          <div style="background:var(--bg); border-left:2px solid var(--primary); padding:12px 14px; border-radius:0 6px 6px 0; font-size:13px; color:var(--muted); margin-top:14px; font-style:italic;">
+            "I live near Mumbai and am available for weekly visits"
+          </div>
+          <div class="match-score-big">
+            <div class="match-score-num">87%</div>
+            <div class="match-score-lbl">Match Score</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Eligibility -->
+        <div>
+          <div class="section-label">Eligibility Breakdown</div>
+          <div class="elig-row elig-ok"><span>✅</span><span>Age 45 — within 30–65</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>HbA1c 8.2 — above 7.5</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>Diagnosis matches</span></div>
+          <div class="elig-row elig-fail"><span>❌</span><span>BMI 38.1 — above max 35</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>No heart disease</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>On Metformin</span></div>
+          <div style="margin-top:20px;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">Score Breakdown</div>
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">Rule</span><div class="score-row-bar"><div class="score-row-fill" style="width:83%; background:var(--success);"></div></div><span class="score-row-pct text-teal" style="font-size:12px;">83%</span></div>
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">ML</span><div class="score-row-bar"><div class="score-row-fill" style="width:79%; background:var(--primary);"></div></div><span class="score-row-pct text-teal" style="font-size:12px;">79%</span></div>
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">Final</span><div class="score-row-bar"><div class="score-row-fill" style="width:87%; background:linear-gradient(90deg,var(--success),var(--primary));"></div></div><span class="score-row-pct text-teal" style="font-size:13px; font-weight:700;">87%</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RESPONSE AREA -->
+      <div style="padding:0 28px 20px;">
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Response to Patient (optional)</label>
+        <textarea class="input-field" rows="3" placeholder="Type your response to the patient..."></textarea>
+      </div>
+
+      <div class="modal-footer space-between">
+        <button class="btn btn-danger-outline" onclick="closeModal('inquiryModal')">❌ Decline Patient</button>
+        <button class="btn btn-success" onclick="closeModal('inquiryModal')">✅ Accept Patient</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

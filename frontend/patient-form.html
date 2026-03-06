@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Your Medical Profile</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="prog-step prog-done">
+        <div class="prog-num">✓</div>
+        <div class="prog-label">Choose Method</div>
+      </div>
+      <div class="prog-line done"></div>
+      <div class="prog-step prog-active">
+        <div class="prog-num">②</div>
+        <div class="prog-label">Health Details</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step prog-future">
+        <div class="prog-num">③</div>
+        <div class="prog-label">Results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div style="padding:40px 32px;">
+    <div class="card container-sm" style="max-width:680px;">
+
+      <h2 style="font-size:26px; margin-bottom:4px;">Your Medical Profile</h2>
+      <p class="text-muted" style="font-size:13px; margin-bottom:28px;">This information is used only for trial matching</p>
+
+      <!-- SECTION A: Personal Details -->
+      <div style="padding-top:0; margin-bottom:28px;">
+        <div class="section-label">Personal Details</div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Age</label>
+            <input type="number" class="input-field" placeholder="e.g. 45" min="1" max="120">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Gender</label>
+            <div class="radio-pills">
+              <div class="radio-pill selected" onclick="selectPill(this)">M</div>
+              <div class="radio-pill" onclick="selectPill(this)">F</div>
+              <div class="radio-pill" onclick="selectPill(this)">Other</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>City</label>
+          <select class="input-field">
+            <option>Mumbai</option>
+            <option>Delhi</option>
+            <option>Pune</option>
+            <option>Bangalore</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Kolkata</option>
+            <option>Ahmedabad</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SECTION B: Medical Information -->
+      <div style="border-top:1px solid var(--border); padding-top:24px; margin-bottom:28px;">
+        <div class="section-label">Medical Information</div>
+        <div class="form-group">
+          <label>Primary Diagnosis</label>
+          <select class="input-field">
+            <option>Type 2 Diabetes</option>
+            <option>Hypertension</option>
+            <option>Breast Cancer</option>
+            <option>COPD</option>
+            <option>Rheumatoid Arthritis</option>
+            <option>Depression</option>
+            <option>Asthma</option>
+            <option>CKD</option>
+            <option>Parkinson's</option>
+            <option>Lupus</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Medications</label>
+          <div class="chip-input" id="medChips">
+            <div class="chip">Metformin <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
+            <div class="chip">Lisinopril <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
+            <button type="button" class="add-chip" onclick="addChip(this, 'medication')">+ Add Medication</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION C: Lab Values -->
+      <div style="border-top:1px solid var(--border); padding-top:24px; margin-bottom:28px;">
+        <div class="section-label">Lab Values</div>
+        <div class="grid-3">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>HbA1c</label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" placeholder="8.2" step="0.1" style="padding-right:30px;">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-helper">Normal: 4.0–5.6</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>BMI</label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" placeholder="27.4" step="0.1" style="padding-right:52px;">
+              <span class="input-unit">kg/m²</span>
+            </div>
+            <div class="input-helper">Normal: 18.5–24.9</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Creatinine</label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" placeholder="0.9" step="0.1" style="padding-right:52px;">
+              <span class="input-unit">mg/dL</span>
+            </div>
+            <div class="input-helper">Normal: 0.7–1.2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION D: Medical History -->
+      <div style="border-top:1px solid var(--border); padding-top:24px;">
+        <div class="section-label">Medical History</div>
+        <div class="checkbox-grid">
+          <label class="checkbox-item"><input type="checkbox" checked> No prior chemotherapy</label>
+          <label class="checkbox-item"><input type="checkbox" checked> No cardiovascular disease</label>
+          <label class="checkbox-item"><input type="checkbox">          No insulin therapy</label>
+          <label class="checkbox-item"><input type="checkbox" checked> No renal impairment</label>
+          <label class="checkbox-item"><input type="checkbox" checked> No pregnancy</label>
+          <label class="checkbox-item"><input type="checkbox" checked> Non-smoker</label>
+        </div>
+      </div>
+
+      <!-- FOOTER BUTTONS -->
+      <div class="form-footer">
+        <a href="patient-method.html" class="btn btn-ghost">← Back</a>
+        <a href="patient-results.html" class="btn btn-primary">Find My Trials →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

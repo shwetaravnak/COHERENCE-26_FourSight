@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Admin Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="admin-dashboard.html" class="active">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="admin-trials.html">Trials</a>
+          <a href="admin-reports.html">Reports</a>
+          <a href="#">Logs</a>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:30px; height:30px; background:rgba(0,229,204,0.2); border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">🛡️</div>
+        <span style="font-size:13px;">Admin ▼</span>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
+
+    <h1 style="font-size:26px; margin-bottom:4px;">Admin Dashboard</h1>
+    <p class="text-muted page-subtitle">Platform Overview — ClinMatch AI</p>
+
+    <!-- STATS -->
+    <div class="dash-stats">
+      <div class="stat-card"><div class="stat-val">142</div><div class="stat-lbl">Total Patients</div><div class="trend up">↑ +12 today</div></div>
+      <div class="stat-card"><div class="stat-val text-teal">18</div><div class="stat-lbl">Researchers</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#a78bfa;">15</div><div class="stat-lbl">Clinical Trials</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--warning);">47</div><div class="stat-lbl">Total Inquiries</div><div class="trend up">↑ +3 today</div></div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <a href="admin-add-trial.html" class="btn btn-primary btn-sm">+ Add New Trial</a>
+      <button class="btn btn-ghost btn-sm">+ Add Researcher</button>
+      <a href="admin-reports.html" class="btn btn-ghost btn-sm">📊 View Reports</a>
+    </div>
+
+    <!-- TWO COLUMN -->
+    <div class="two-col">
+
+      <!-- LEFT: Activity Feed -->
+      <div class="activity-card">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--border);">
+          <h3 style="font-family:'Syne',sans-serif; font-size:15px;">Recent Activity Feed</h3>
+        </div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--success);"></div><span>New patient P#f2a9 registered</span><span class="act-time">2m ago</span></div>
+        <div class="activity-item"><div class="act-dot" style="background:#60a5fa;"></div><span>Dr. Smith accepted Patient #a3f9</span><span class="act-time">5m ago</span></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--warning);"></div><span>New inquiry sent for T001</span><span class="act-time">12m ago</span></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--error);"></div><span>Patient #c7d2 inquiry declined</span><span class="act-time">1hr ago</span></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--success);"></div><span>New trial T016 added</span><span class="act-time">2hr ago</span></div>
+      </div>
+
+      <!-- RIGHT: Platform Health -->
+      <div class="card">
+        <h3 style="font-family:'Syne',sans-serif; font-size:15px; margin-bottom:20px;">Platform Health</h3>
+        <div class="health-row"><span>API Server</span><div class="health-status">● Online</div></div>
+        <div class="health-row"><span>Database</span><div class="health-status">● Healthy</div></div>
+        <div class="health-row"><span>ML Model</span><div class="health-status">● Active</div></div>
+        <div class="health-row"><span>OCR Engine</span><div class="health-status">● Online</div></div>
+        <div style="text-align:center; padding:20px 0 0;">
+          <div style="font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:var(--primary);">87%</div>
+          <div class="text-muted" style="font-size:12px;">Average Confidence Score</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

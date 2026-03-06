@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Add New Trial</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="admin-dashboard.html">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="admin-trials.html">Trials</a>
+          <a href="admin-reports.html">Reports</a>
+          <a href="#">Logs</a>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:30px; height:30px; background:rgba(0,229,204,0.2); border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">🛡️</div>
+        <span style="font-size:13px;">Admin ▼</span>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:700px; margin:0 auto; padding:36px 32px;">
+
+    <a href="admin-trials.html" class="back-link">← Back</a>
+    <h1 style="font-size:28px; margin-bottom:6px;">Add New Clinical Trial</h1>
+    <p class="text-muted" style="font-size:14px; margin-bottom:32px;">Fill in the trial details and eligibility criteria</p>
+
+    <div class="card">
+
+      <!-- SECTION 1: Trial Information -->
+      <div class="section-label">Trial Information</div>
+
+      <div class="form-group">
+        <label>Trial Title</label>
+        <input type="text" class="input-field" placeholder="e.g. Diabetes Glucose Control Study Phase 3">
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Phase</label>
+          <select class="input-field">
+            <option>Phase 1</option>
+            <option>Phase 2</option>
+            <option selected>Phase 3</option>
+            <option>Phase 4</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Disease Area</label>
+          <select class="input-field">
+            <option>Endocrinology</option>
+            <option>Cardiology</option>
+            <option>Oncology</option>
+            <option>Pulmonology</option>
+            <option>Neurology</option>
+            <option>Psychiatry</option>
+            <option>Rheumatology</option>
+            <option>Nephrology</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sponsor Name</label>
+        <input type="text" class="input-field" placeholder="e.g. PharmaCo Research">
+      </div>
+
+      <div class="form-group" style="margin-bottom:28px;">
+        <label>Locations</label>
+        <div class="chip-input" id="cityChips">
+          <div class="chip">Mumbai <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
+          <div class="chip">Delhi <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
+          <button type="button" class="add-chip" onclick="addChip(this, 'city')">+ Add City</button>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Eligibility Criteria -->
+      <div style="border-top:1px solid var(--border); padding-top:24px;">
+        <div class="section-label">Eligibility Criteria</div>
+
+        <div class="info-note" style="margin-bottom:16px;">
+          ℹ️ Write in plain English. AI will parse this into matching rules automatically.
+        </div>
+
+        <div class="form-group">
+          <label>Inclusion Criteria</label>
+          <textarea class="input-field" rows="5"
+            placeholder="e.g. Patients aged 30 to 65 years with Type 2 Diabetes, HbA1c greater than 7.5, BMI between 22 and 35, currently on Metformin therapy..."></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px;">
+          <label>Exclusion Criteria</label>
+          <textarea class="input-field" rows="5"
+            placeholder="e.g. No prior cardiovascular disease, no pregnancy, creatinine above 1.5, no insulin therapy in past 6 months..."></textarea>
+        </div>
+
+        <!-- PARSE PREVIEW -->
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleParsedOutput()" style="margin-bottom:12px;">
+          🤖 Preview Parsed Rules
+        </button>
+        <div class="parsed-output" id="parsedOutput">{
+  "inclusion": [
+    { "field": "age",        "operator": "between", "min": 30,  "max": 65 },
+    { "field": "diagnosis",  "operator": "equals",  "value": "Type 2 Diabetes" },
+    { "field": "hba1c",      "operator": "gt",      "value": 7.5 },
+    { "field": "bmi",        "operator": "between", "min": 22,  "max": 35 },
+    { "field": "medication", "operator": "contains","value": "Metformin" }
+  ],
+  "exclusion": [
+    { "field": "cardiovascular_disease", "operator": "equals", "value": false },
+    { "field": "pregnancy",              "operator": "equals", "value": false },
+    { "field": "creatinine",             "operator": "lt",     "value": 1.5 }
+  ]
+}</div>
+      </div>
+
+      <!-- FOOTER BUTTONS -->
+      <div class="form-footer">
+        <a href="admin-trials.html" class="btn btn-ghost">Cancel</a>
+        <a href="admin-trials.html" class="btn btn-primary">Save Trial</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

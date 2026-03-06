@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Manage Trials</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="admin-dashboard.html">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="admin-trials.html" class="active">Trials</a>
+          <a href="admin-reports.html">Reports</a>
+          <a href="#">Logs</a>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:30px; height:30px; background:rgba(0,229,204,0.2); border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">🛡️</div>
+        <span style="font-size:13px;">Admin ▼</span>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
+
+    <div class="page-header">
+      <h1>Clinical Trials</h1>
+      <a href="admin-add-trial.html" class="btn btn-primary">+ Add New Trial</a>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-bar" style="margin-bottom:16px;">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search trials by name, disease, sponsor...">
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-row">
+      <select class="filter-select"><option>All Phases</option><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option><option>Phase 4</option></select>
+      <select class="filter-select"><option>All Diseases</option><option>Endocrinology</option><option>Cardiology</option><option>Oncology</option></select>
+      <select class="filter-select"><option>Active Only</option><option>All Statuses</option><option>Inactive</option></select>
+    </div>
+
+    <!-- TRIALS LIST (rendered by JS) -->
+    <div id="trialsContainer"></div>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">→</button>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

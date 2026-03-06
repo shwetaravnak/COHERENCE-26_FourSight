@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Reports &amp; Analytics</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="admin-dashboard.html">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="admin-trials.html">Trials</a>
+          <a href="admin-reports.html" class="active">Reports</a>
+          <a href="#">Logs</a>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:30px; height:30px; background:rgba(0,229,204,0.2); border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">🛡️</div>
+        <span style="font-size:13px;">Admin ▼</span>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
+
+    <!-- HEADER -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+      <h1 style="font-size:26px;">Reports &amp; Analytics</h1>
+      <select class="filter-select">
+        <option>Last 7 days</option>
+        <option>Last 30 days</option>
+        <option>All time</option>
+      </select>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-val text-teal">287</div>
+        <div class="kpi-lbl">Total Matches</div>
+        <div class="kpi-trend trend up">↑ +14% vs last week</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val text-success">89%</div>
+        <div class="kpi-lbl">Avg Match Score</div>
+        <div class="kpi-trend trend up">↑ +2%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:var(--warning);">67%</div>
+        <div class="kpi-lbl">Inquiry Accept Rate</div>
+        <div class="kpi-trend trend down">↓ -3%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">142</div>
+        <div class="kpi-lbl">Active Patients</div>
+        <div class="kpi-trend trend up">↑ +12 today</div>
+      </div>
+    </div>
+
+    <!-- CHART ROW 1 -->
+    <div class="chart-row">
+
+      <!-- Disease Donut -->
+      <div class="chart-card">
+        <h3>Patients by Disease Area</h3>
+        <div class="chart-with-legend">
+          <div class="donut" style="background:conic-gradient(
+            var(--primary) 0% 35%,
+            #60a5fa 35% 55%,
+            #a78bfa 55% 70%,
+            var(--success) 70% 82%,
+            var(--border) 82% 100%
+          );"></div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--primary);"></div>Type 2 Diabetes — 35%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#60a5fa;"></div>Hypertension — 20%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div>Cancer — 15%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div>COPD — 12%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--border);"></div>Others — 18%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matches Bar -->
+      <div class="chart-card">
+        <h3>Matches per Trial</h3>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">T001</span><div class="bar-track"><div class="bar-fill" style="width:100%;">12</div></div></div>
+          <div class="bar-row"><span class="bar-label">T002</span><div class="bar-track"><div class="bar-fill" style="width:75%;">9</div></div></div>
+          <div class="bar-row"><span class="bar-label">T003</span><div class="bar-track"><div class="bar-fill" style="width:58%;">7</div></div></div>
+          <div class="bar-row"><span class="bar-label">T005</span><div class="bar-track"><div class="bar-fill" style="width:42%;">5</div></div></div>
+          <div class="bar-row"><span class="bar-label">T006</span><div class="bar-track"><div class="bar-fill" style="width:33%;">4</div></div></div>
+          <div class="bar-row"><span class="bar-label">T007</span><div class="bar-track"><div class="bar-fill" style="width:25%;">3</div></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHART ROW 2 -->
+    <div class="chart-row">
+
+      <!-- Status Donut -->
+      <div class="chart-card">
+        <h3>Inquiry Status Distribution</h3>
+        <div class="chart-with-legend">
+          <div class="donut" style="background:conic-gradient(
+            var(--success) 0% 42%,
+            var(--warning) 42% 77%,
+            var(--error) 77% 100%
+          );"></div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div>Accepted — 42%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--warning);"></div>Pending — 35%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--error);"></div>Declined — 23%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Line Chart -->
+      <div class="chart-card">
+        <h3>Daily Matches This Week</h3>
+        <svg class="line-chart-svg" viewBox="0 0 400 140" height="150">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#00e5cc" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#00e5cc" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid Lines -->
+          <line x1="0" y1="30"  x2="400" y2="30"  stroke="#334155" stroke-width="1" opacity="0.5"/>
+          <line x1="0" y1="70"  x2="400" y2="70"  stroke="#334155" stroke-width="1" opacity="0.5"/>
+          <line x1="0" y1="110" x2="400" y2="110" stroke="#334155" stroke-width="1" opacity="0.5"/>
+          <!-- Area Fill -->
+          <polygon points="30,90 90,55 150,70 210,40 270,60 330,35 390,50 390,130 30,130" fill="url(#areaGrad)"/>
+          <!-- Line -->
+          <polyline points="30,90 90,55 150,70 210,40 270,60 330,35 390,50"
+            fill="none" stroke="#00e5cc" stroke-width="2.5"
+            stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Data Dots -->
+          <circle cx="30"  cy="90" r="4" fill="#00e5cc"/>
+          <circle cx="90"  cy="55" r="4" fill="#00e5cc"/>
+          <circle cx="150" cy="70" r="4" fill="#00e5cc"/>
+          <circle cx="210" cy="40" r="4" fill="#00e5cc"/>
+          <circle cx="270" cy="60" r="4" fill="#00e5cc"/>
+          <circle cx="330" cy="35" r="4" fill="#00e5cc"/>
+          <circle cx="390" cy="50" r="4" fill="#00e5cc"/>
+          <!-- X Axis Labels -->
+          <text x="30"  y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Mon</text>
+          <text x="90"  y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Tue</text>
+          <text x="150" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Wed</text>
+          <text x="210" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Thu</text>
+          <text x="270" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Fri</text>
+          <text x="330" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Sat</text>
+          <text x="390" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="IBM Plex Sans">Sun</text>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- EXPORT -->
+    <div class="export-row">
+      <button class="btn btn-ghost">📥 Export CSV</button>
+      <button class="btn btn-ghost">📊 Export PDF</button>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

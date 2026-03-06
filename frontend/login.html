@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .cond-field        { display:none; }
+    .cond-field.show   { display:block; animation:fadeIn .3s ease; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-wrap">
+    <div class="auth-card" style="max-width:480px;">
+
+      <div class="auth-logo">ClinMatch AI</div>
+      <div class="auth-sub">Sign in to your account</div>
+
+      <!-- ROLE SELECTOR -->
+      <div class="role-selector">
+        <div class="role-card selected" onclick="selectRole(this,'Patient')">
+          <div class="role-icon">👤</div>
+          <div class="role-title">Patient</div>
+          <div class="role-sub">Find clinical trials</div>
+        </div>
+        <div class="role-card" onclick="selectRole(this,'Researcher')">
+          <div class="role-icon">🔬</div>
+          <div class="role-title">Researcher</div>
+          <div class="role-sub">Manage trial recruitment</div>
+        </div>
+        <div class="role-card" onclick="selectRole(this,'Admin')">
+          <div class="role-icon">🛡️</div>
+          <div class="role-title">Admin</div>
+          <div class="role-sub">Platform management</div>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" class="input-field" placeholder="you@example.com">
+      </div>
+      <div class="form-group" style="position:relative;">
+        <label>Password</label>
+        <input type="password" class="input-field" placeholder="••••••••" id="pwdField" style="padding-right:40px;">
+        <button onclick="togglePwd()" style="position:absolute; right:12px; bottom:10px; background:none; border:none; cursor:pointer; color:var(--muted); font-size:16px;">👁</button>
+      </div>
+      <div style="text-align:right; margin-bottom:20px;">
+        <a href="#" style="font-size:13px;">Forgot password?</a>
+      </div>
+
+      <button id="loginBtn" class="btn btn-primary btn-full" style="padding:13px;" onclick="loginRedirect()">
+        Login as Patient
+      </button>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Register</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let currentRole = 'Patient';
+
+    function selectRole(el, role) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      currentRole = role;
+      document.getElementById('loginBtn').textContent = 'Login as ' + role;
+    }
+
+    function loginRedirect() {
+      if      (currentRole === 'Patient')    window.location.href = 'patient-method.html';
+      else if (currentRole === 'Researcher') window.location.href = 'researcher-dashboard.html';
+      else                                   window.location.href = 'admin-dashboard.html';
+    }
+  </script>
+</body>
+</html>

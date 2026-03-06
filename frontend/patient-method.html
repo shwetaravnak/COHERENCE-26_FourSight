@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Choose Input Method</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="prog-step prog-active">
+        <div class="prog-num">①</div>
+        <div class="prog-label">Choose Method</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step prog-future">
+        <div class="prog-num">②</div>
+        <div class="prog-label">Health Details</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step prog-future">
+        <div class="prog-num">③</div>
+        <div class="prog-label">Results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div style="padding:60px 32px; text-align:center;">
+    <h1 style="font-size:32px; margin-bottom:12px;">
+      How would you like to share your health details?
+    </h1>
+    <div class="text-muted" style="font-size:14px; margin-bottom:48px; display:flex; align-items:center; justify-content:center; gap:6px;">
+      🔒 Your identity is anonymized immediately upon submission
+    </div>
+
+    <div class="choose-cards">
+
+      <!-- Card 1: Manual Form -->
+      <div class="choose-card" onclick="window.location.href='patient-form.html'">
+        <div class="choose-icon-wrap">📋</div>
+        <h2 style="font-size:19px; margin-bottom:10px;">Fill Form Manually</h2>
+        <p class="text-muted" style="font-size:14px; margin-bottom:20px;">
+          Enter your health details step by step. Takes about 3 minutes.
+        </p>
+        <ul class="choose-bullets">
+          <li>Age and gender</li>
+          <li>Diagnosis and medications</li>
+          <li>Lab values</li>
+          <li>Medical history</li>
+        </ul>
+        <button class="btn btn-ghost">Fill Form →</button>
+      </div>
+
+      <!-- Card 2: Upload -->
+      <div class="choose-card featured" onclick="window.location.href='patient-upload.html'">
+        <div class="recommended-badge">Recommended</div>
+        <div class="choose-icon-wrap">📄</div>
+        <h2 style="font-size:19px; margin-bottom:10px;">Upload Medical Report</h2>
+        <p class="text-muted" style="font-size:14px; margin-bottom:20px;">
+          Upload a PDF or photo of your medical report. AI extracts your details automatically.
+        </p>
+        <ul class="choose-bullets">
+          <li>PDF, JPG, PNG supported</li>
+          <li>AI reads your report</li>
+          <li>You verify extracted data</li>
+          <li>Max 10MB</li>
+        </ul>
+        <button class="btn btn-primary">Upload Report →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

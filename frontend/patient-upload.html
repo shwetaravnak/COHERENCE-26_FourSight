@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Upload Medical Report</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="prog-step prog-active">
+        <div class="prog-num">①</div>
+        <div class="prog-label">Choose Method</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step prog-future">
+        <div class="prog-num">②</div>
+        <div class="prog-label">Health Details</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step prog-future">
+        <div class="prog-num">③</div>
+        <div class="prog-label">Results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="container-sm" style="padding-top:48px; padding-bottom:48px;">
+
+    <h1 style="font-size:28px; margin-bottom:6px;">Upload Your Medical Report</h1>
+    <p class="text-muted" style="font-size:14px; margin-bottom:32px;">We support PDF, JPG, and PNG formats</p>
+
+    <!-- UPLOAD ZONE -->
+    <div class="upload-zone" id="uploadZone"
+         ondragover="event.preventDefault(); this.classList.add('dragover')"
+         ondragleave="this.classList.remove('dragover')"
+         ondrop="handleDrop(event, () => window.location.href='patient-ocr-confirm.html')">
+      <div class="upload-icon">☁️</div>
+      <h3 style="font-size:17px; margin-bottom:8px;">Drag &amp; drop your file here</h3>
+      <div class="text-muted" style="margin:12px 0; font-size:13px;">or</div>
+      <label style="cursor:pointer;">
+        <input type="file" style="display:none;" accept=".pdf,.jpg,.jpeg,.png"
+               onchange="simulateUpload(() => window.location.href='patient-ocr-confirm.html')">
+        <span class="btn btn-ghost btn-sm">Browse Files</span>
+      </label>
+      <div class="text-muted" style="margin-top:12px; font-size:12px;">PDF, JPG, PNG &bull; Maximum 10MB</div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div id="uploadLoader" style="display:none; text-align:center; padding:48px;">
+      <div class="spin" style="font-size:36px; display:inline-block;">⏳</div>
+      <div style="font-size:17px; margin:12px 0 4px;">Reading your medical report...</div>
+      <div class="text-muted" style="font-size:13px;">AI is extracting your health information</div>
+      <div style="background:var(--border); border-radius:4px; height:6px; margin:16px auto; max-width:300px; overflow:hidden;">
+        <div id="uploadProgress" style="height:100%; background:var(--primary); border-radius:4px; width:0%; transition:width .1s;"></div>
+      </div>
+    </div>
+
+    <!-- FILE TYPE BADGES -->
+    <div class="file-types">
+      <div class="file-type-badge">📄 PDF</div>
+      <div class="file-type-badge">🖼️ JPG</div>
+      <div class="file-type-badge">🖼️ PNG</div>
+    </div>
+
+    <!-- SECURITY NOTE -->
+    <div class="text-muted" style="font-size:12px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
+      🔒 Your file is processed securely and never stored on our servers
+    </div>
+
+    <a href="patient-method.html" class="text-teal" style="font-size:13px; display:inline-block; margin-top:20px;">← Choose different method</a>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

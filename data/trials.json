@@ -1,0 +1,152 @@
+[
+  {
+    "trial_id": "T001",
+    "title": "Diabetes Glucose Control Study",
+    "phase": 3,
+    "disease_area": "Endocrinology",
+    "sponsor": "PharmaCo Research",
+    "locations": ["Mumbai", "Delhi", "Pune"],
+    "inclusion_text": "Patients aged 30 to 65 years with Type 2 Diabetes, HbA1c greater than 7.5, BMI between 22 and 35, currently on Metformin",
+    "exclusion_text": "No prior insulin therapy, no cardiovascular disease, no pregnancy, creatinine above 1.5"
+  },
+  {
+    "trial_id": "T002",
+    "title": "Hypertension Management Trial",
+    "phase": 2,
+    "disease_area": "Cardiology",
+    "sponsor": "HeartCare Institute",
+    "locations": ["Delhi", "Bangalore", "Chennai"],
+    "inclusion_text": "Patients aged 40 to 70 years with Hypertension, currently on Lisinopril or Amlodipine",
+    "exclusion_text": "No chronic kidney disease, no diabetes, no prior stroke"
+  },
+  {
+    "trial_id": "T003",
+    "title": "Breast Cancer Immunotherapy Study",
+    "phase": 2,
+    "disease_area": "Oncology",
+    "sponsor": "OncoGen Labs",
+    "locations": ["Mumbai", "Hyderabad"],
+    "inclusion_text": "Female patients aged 25 to 60 years with Breast Cancer, no prior chemotherapy",
+    "exclusion_text": "No metastatic disease, no pregnancy, no autoimmune disease"
+  },
+  {
+    "trial_id": "T004",
+    "title": "COPD Bronchodilator Efficacy Trial",
+    "phase": 3,
+    "disease_area": "Pulmonology",
+    "sponsor": "LungHealth Research",
+    "locations": ["Pune", "Kolkata", "Ahmedabad"],
+    "inclusion_text": "Patients aged 45 to 75 years with COPD, currently on Tiotropium or Salbutamol, BMI below 32",
+    "exclusion_text": "No asthma, no active infection, no cardiovascular disease"
+  },
+  {
+    "trial_id": "T005",
+    "title": "Rheumatoid Arthritis Biologic Study",
+    "phase": 3,
+    "disease_area": "Rheumatology",
+    "sponsor": "ImmunoTech",
+    "locations": ["Mumbai", "Delhi", "Bangalore"],
+    "inclusion_text": "Patients aged 20 to 65 years with Rheumatoid Arthritis, currently on Methotrexate",
+    "exclusion_text": "No active tuberculosis, no pregnancy, no severe renal impairment"
+  },
+  {
+    "trial_id": "T006",
+    "title": "Depression SSRI Optimization Trial",
+    "phase": 2,
+    "disease_area": "Psychiatry",
+    "sponsor": "MindCare Research",
+    "locations": ["Chennai", "Hyderabad", "Pune"],
+    "inclusion_text": "Patients aged 18 to 55 years with Depression, currently on Sertraline or Fluoxetine, BMI below 35",
+    "exclusion_text": "No bipolar disorder, no active suicidal ideation, no substance abuse"
+  },
+  {
+    "trial_id": "T007",
+    "title": "Asthma Biologic Therapy Study",
+    "phase": 3,
+    "disease_area": "Pulmonology",
+    "sponsor": "AirWell Labs",
+    "locations": ["Mumbai", "Delhi", "Chennai"],
+    "inclusion_text": "Patients aged 18 to 60 years with Asthma, currently on Budesonide, HbA1c below 8.0",
+    "exclusion_text": "No COPD, no active smoking, no cardiovascular disease"
+  },
+  {
+    "trial_id": "T008",
+    "title": "Chronic Kidney Disease Progression Study",
+    "phase": 2,
+    "disease_area": "Nephrology",
+    "sponsor": "KidneyCare Institute",
+    "locations": ["Kolkata", "Ahmedabad", "Pune"],
+    "inclusion_text": "Patients aged 35 to 70 years with Chronic Kidney Disease, creatinine between 1.2 and 2.0, currently on Furosemide",
+    "exclusion_text": "No dialysis, no diabetes, no active infection"
+  },
+  {
+    "trial_id": "T009",
+    "title": "Parkinson's Neuroprotection Trial",
+    "phase": 2,
+    "disease_area": "Neurology",
+    "sponsor": "NeuroGen Research",
+    "locations": ["Mumbai", "Bangalore", "Delhi"],
+    "inclusion_text": "Patients aged 50 to 80 years with Parkinson's Disease, currently on Levodopa or Pramipexole",
+    "exclusion_text": "No dementia, no prior deep brain stimulation, no severe depression"
+  },
+  {
+    "trial_id": "T010",
+    "title": "Lupus Flare Prevention Study",
+    "phase": 3,
+    "disease_area": "Rheumatology",
+    "sponsor": "AutoImmune Labs",
+    "locations": ["Hyderabad", "Chennai", "Mumbai"],
+    "inclusion_text": "Patients aged 18 to 55 years with Lupus, currently on Hydroxychloroquine or Prednisone",
+    "exclusion_text": "No active renal lupus, no pregnancy, no active infection"
+  },
+  {
+    "trial_id": "T011",
+    "title": "Type 2 Diabetes Weight Loss Study",
+    "phase": 2,
+    "disease_area": "Endocrinology",
+    "sponsor": "MetabolicCare Research",
+    "locations": ["Bangalore", "Pune", "Ahmedabad"],
+    "inclusion_text": "Patients aged 25 to 60 years with Type 2 Diabetes, BMI greater than 27, HbA1c between 7.0 and 10.0",
+    "exclusion_text": "No prior bariatric surgery, no cardiovascular disease, no insulin therapy"
+  },
+  {
+    "trial_id": "T012",
+    "title": "Hypertension Renal Protection Trial",
+    "phase": 3,
+    "disease_area": "Cardiology",
+    "sponsor": "VascularHealth Institute",
+    "locations": ["Delhi", "Kolkata", "Mumbai"],
+    "inclusion_text": "Patients aged 45 to 75 years with Hypertension, creatinine below 1.5, currently on Losartan",
+    "exclusion_text": "No diabetes, no prior heart attack, no severe liver disease"
+  },
+  {
+    "trial_id": "T013",
+    "title": "Asthma Transition Study",
+    "phase": 2,
+    "disease_area": "Pulmonology",
+    "sponsor": "BreathEasy Research",
+    "locations": ["Chennai", "Pune", "Hyderabad"],
+    "inclusion_text": "Patients aged 18 to 35 years with Asthma, currently on Montelukast, BMI below 30",
+    "exclusion_text": "No COPD, no active tuberculosis, no pregnancy"
+  },
+  {
+    "trial_id": "T014",
+    "title": "Depression Cognitive Therapy Study",
+    "phase": 2,
+    "disease_area": "Psychiatry",
+    "sponsor": "BrainHealth Labs",
+    "locations": ["Mumbai", "Bangalore", "Delhi"],
+    "inclusion_text": "Patients aged 20 to 50 years with Depression, BMI below 32",
+    "exclusion_text": "No schizophrenia, no active substance abuse, no bipolar disorder"
+  },
+  {
+    "trial_id": "T015",
+    "title": "COPD Pulmonary Rehabilitation Study",
+    "phase": 3,
+    "disease_area": "Pulmonology",
+    "sponsor": "RespiCare Institute",
+    "locations": ["Ahmedabad", "Kolkata", "Delhi"],
+    "inclusion_text": "Patients aged 50 to 80 years with COPD, BMI between 18 and 30, currently on Salbutamol",
+    "exclusion_text": "No active cancer, no cardiovascular disease, no severe depression"
+  }
+]

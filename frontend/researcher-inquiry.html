@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Inquiry Detail</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="lp-logo">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="researcher-dashboard.html">Dashboard</a>
+          <a href="researcher-trial.html">My Trials</a>
+          <a href="researcher-inquiry.html" class="active">Inquiries</a>
+        </div>
+      </div>
+      <div class="dash-right">
+        <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
+        <a href="login.html" class="btn btn-ghost btn-sm">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:900px; margin:0 auto; padding:36px 32px;">
+
+    <a href="researcher-trial.html" class="back-link">← Back to Trial Detail</a>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h1 style="font-size:26px; margin-bottom:4px;">Inquiry Detail</h1>
+        <p class="text-muted" style="font-size:13px;">Reviewing patient inquiry for T001 — Diabetes Study</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('inquiryModal')">Open Inquiry Review</button>
+    </div>
+
+    <!-- INQUIRIES LIST SUMMARY -->
+    <div style="display:grid; gap:12px;">
+
+      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; cursor:pointer; transition:border .2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'" onclick="openModal('inquiryModal')">
+        <div>
+          <div class="patient-id" style="font-size:13px;">#a3f9b2</div>
+          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
+          <div class="text-muted" style="font-size:12px;">Age 45 · Male · Mumbai · 87% match</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="pill pill-yellow">⏳ Pending</span>
+          <span class="text-muted" style="font-size:11px;">2m ago</span>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="patient-id" style="font-size:13px;">#d9e2f1</div>
+          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
+          <div class="text-muted" style="font-size:12px;">Age 58 · Female · Pune · 71% match</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="pill pill-yellow">⏳ Pending</span>
+          <span class="text-muted" style="font-size:11px;">45m ago</span>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="patient-id" style="font-size:13px;">#b2d1c4</div>
+          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
+          <div class="text-muted" style="font-size:12px;">Age 38 · Male · Mumbai · 91% match</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="pill pill-green">✅ Accepted</span>
+          <span class="text-muted" style="font-size:11px;">1hr ago</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── INQUIRY MODAL (same as researcher-trial.html) ──────── -->
+  <div class="modal-overlay" id="inquiryModal">
+    <div class="modal modal-lg" style="position:relative;">
+      <button class="close-modal-btn" onclick="closeModal('inquiryModal')" style="position:absolute;top:20px;right:20px;">×</button>
+
+      <div class="modal-header">
+        <div>
+          <h2 style="font-size:20px;">Inquiry Review</h2>
+          <div class="text-teal" style="font-size:13px; margin-top:4px;">Patient #a3f9b2 — T001 Diabetes Study</div>
+        </div>
+        <span class="pill pill-yellow" style="margin-right:32px;">🔴 Pending</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; padding:20px 28px;">
+        <div>
+          <div class="section-label">Patient Profile</div>
+          <div class="profile-row"><span style="font-size:16px;">👤</span><span class="profile-label">Age</span><span>45</span></div>
+          <div class="profile-row"><span style="font-size:16px;">⚥</span><span class="profile-label">Gender</span><span>Male</span></div>
+          <div class="profile-row"><span style="font-size:16px;">📍</span><span class="profile-label">City</span><span>Mumbai</span></div>
+          <div class="profile-row"><span style="font-size:16px;">🏥</span><span class="profile-label">Diagnosis</span><span>Type 2 Diabetes</span></div>
+          <div class="profile-row"><span style="font-size:16px;">🧪</span><span class="profile-label">HbA1c</span><span>8.2</span></div>
+          <div class="profile-row"><span style="font-size:16px;">⚖️</span><span class="profile-label">BMI</span><span style="color:var(--error);">38.1</span></div>
+          <div class="profile-row"><span style="font-size:16px;">💊</span><span class="profile-label">Medications</span><span>Metformin</span></div>
+          <div style="background:var(--bg); border-left:2px solid var(--primary); padding:12px 14px; border-radius:0 6px 6px 0; font-size:13px; color:var(--muted); margin-top:14px; font-style:italic;">
+            "I live near Mumbai and am available for weekly visits"
+          </div>
+          <div class="match-score-big">
+            <div class="match-score-num">87%</div>
+            <div class="match-score-lbl">Match Score</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Eligibility Breakdown</div>
+          <div class="elig-row elig-ok"><span>✅</span><span>Age 45 — within 30–65</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>HbA1c 8.2 — above 7.5</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>Diagnosis matches</span></div>
+          <div class="elig-row elig-fail"><span>❌</span><span>BMI 38.1 — above max 35</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>No heart disease</span></div>
+          <div class="elig-row elig-ok"><span>✅</span><span>On Metformin</span></div>
+          <div style="margin-top:20px;">
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">Rule</span><div class="score-row-bar"><div class="score-row-fill" style="width:83%; background:var(--success);"></div></div><span class="score-row-pct text-teal" style="font-size:12px;">83%</span></div>
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">ML</span><div class="score-row-bar"><div class="score-row-fill" style="width:79%; background:var(--primary);"></div></div><span class="score-row-pct text-teal" style="font-size:12px;">79%</span></div>
+            <div class="score-row"><span class="score-row-label" style="font-size:12px;">Final</span><div class="score-row-bar"><div class="score-row-fill" style="width:87%; background:linear-gradient(90deg,var(--success),var(--primary));"></div></div><span class="score-row-pct text-teal" style="font-size:13px; font-weight:700;">87%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 28px 20px;">
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:8px;">Response to Patient (optional)</label>
+        <textarea class="input-field" rows="3" placeholder="Type your response to the patient..."></textarea>
+      </div>
+
+      <div class="modal-footer space-between">
+        <button class="btn btn-danger-outline" onclick="closeModal('inquiryModal')">❌ Decline Patient</button>
+        <button class="btn btn-success" onclick="closeModal('inquiryModal')">✅ Accept Patient</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
