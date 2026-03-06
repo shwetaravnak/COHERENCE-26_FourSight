@@ -8,6 +8,30 @@
 </head>
 <body>
 
+  <!-- PATIENT NAV -->
+  <nav class="patient-nav">
+    <div class="patient-nav-inner">
+      <div style="display:flex; align-items:center; gap:24px;">
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
+      </div>
+      <div class="dash-right">
+        <div class="nav-greeting">
+          <span>👋</span>
+          <span>Welcome, <strong id="navUserDisplay">Patient</strong></span>
+        </div>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">👤</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <!-- PROGRESS BAR (all done) -->
   <div class="progress-bar">
     <div class="progress-steps">
@@ -67,7 +91,7 @@
         </div>
         <div class="trial-actions">
           <button class="btn btn-ghost btn-sm" onclick="openModal('explanationModal')">📋 View Explanation</button>
-          <button class="btn btn-primary btn-sm">★ I'm Interested</button>
+          <button class="btn btn-primary btn-sm" onclick="showSuccessModal('Diabetes Glucose Control Study', 'T001')">★ I'm Interested</button>
         </div>
       </div>
     </div>
@@ -96,7 +120,7 @@
         </div>
         <div class="trial-actions">
           <button class="btn btn-ghost btn-sm" onclick="openModal('explanationModal')">📋 View Explanation</button>
-          <button class="btn btn-primary btn-sm">★ I'm Interested</button>
+          <button class="btn btn-primary btn-sm" onclick="showSuccessModal('Metformin Efficacy &amp; Dosage Study', 'T002')">★ I'm Interested</button>
         </div>
       </div>
     </div>
@@ -209,7 +233,7 @@
 
       <div class="modal-footer space-between">
         <button class="btn btn-ghost" onclick="closeModal('explanationModal')">Close</button>
-        <button class="btn btn-primary">★ I'm Interested</button>
+        <button class="btn btn-primary" onclick="showSuccessModal('Diabetes Glucose Control Study', 'T001')">★ I'm Interested</button>
       </div>
     </div>
   </div>

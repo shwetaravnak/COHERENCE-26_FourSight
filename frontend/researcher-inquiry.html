@@ -47,45 +47,9 @@
       <button class="btn btn-primary" onclick="openModal('inquiryModal')">Open Inquiry Review</button>
     </div>
 
-    <!-- INQUIRIES LIST SUMMARY -->
-    <div style="display:grid; gap:12px;">
-
-      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; cursor:pointer; transition:border .2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'" onclick="openModal('inquiryModal')">
-        <div>
-          <div class="patient-id" style="font-size:13px;">#a3f9b2</div>
-          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
-          <div class="text-muted" style="font-size:12px;">Age 45 · Male · Mumbai · 87% match</div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span class="pill pill-yellow">⏳ Pending</span>
-          <span class="text-muted" style="font-size:11px;">2m ago</span>
-        </div>
-      </div>
-
-      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-        <div>
-          <div class="patient-id" style="font-size:13px;">#d9e2f1</div>
-          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
-          <div class="text-muted" style="font-size:12px;">Age 58 · Female · Pune · 71% match</div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span class="pill pill-yellow">⏳ Pending</span>
-          <span class="text-muted" style="font-size:11px;">45m ago</span>
-        </div>
-      </div>
-
-      <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-        <div>
-          <div class="patient-id" style="font-size:13px;">#b2d1c4</div>
-          <div style="font-size:14px; font-weight:600; margin:4px 0;">T001 — Diabetes Glucose Control Study</div>
-          <div class="text-muted" style="font-size:12px;">Age 38 · Male · Mumbai · 91% match</div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span class="pill pill-green">✅ Accepted</span>
-          <span class="text-muted" style="font-size:11px;">1hr ago</span>
-        </div>
-      </div>
-
+    <!-- INQUIRIES LIST (populated dynamically) -->
+    <div id="researcherInquiriesList" style="display:grid; gap:12px;">
+      <p class="text-muted" style="padding:12px;">No inquiries yet. Inquiries will appear here when patients express interest in your trials.</p>
     </div>
   </div>
 

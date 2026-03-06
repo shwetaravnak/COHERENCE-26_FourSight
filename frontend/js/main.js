@@ -703,11 +703,83 @@ async function openExplanationModal(patient_hash, trial_id, title) {
 async function sendInterest(patient_hash, trial_id) {
   const note = prompt('Add a note for the researcher (optional):') || '';
   try {
-    await apiSendInquiry(patient_hash, trial_id, note);
-    showToast('Trial request sent.', 'success');
+    const result = await apiSendInquiry(patient_hash, trial_id, note);
+    // Find trial name from the rendered cards
+    let trialName = trial_id;
+    const cards = document.querySelectorAll('.trial-card');
+    cards.forEach(card => {
+      const nameEl = card.querySelector('.trial-name');
+      if (nameEl && card.innerHTML.includes(trial_id)) trialName = nameEl.textContent;
+    });
+    showSuccessModal(trialName, trial_id);
     loadPatientInquiries(patient_hash);
   } catch(e) {
     showToast(e.message, 'error');
+  }
+}
+
+/* ── Success Modal (I'm Interested) ──────────────────────── */
+function showSuccessModal(trialName, trialId) {
+  // Remove existing modal if any
+  let existing = document.getElementById('interestSuccessModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'interestSuccessModal';
+  overlay.className = 'success-modal-overlay open';
+  overlay.innerHTML = `
+    <div class="success-modal">
+      <div class="success-check-wrap">
+        <span class="success-check-icon">✅</span>
+      </div>
+      <h2>Interest Submitted!</h2>
+      <p>Your interest has been sent to the research team. They will review your profile and respond soon.</p>
+      <div class="success-trial-name">📋 ${trialName}</div>
+      <div class="success-status">⏳ Status: Pending Review</div>
+      <div class="success-actions">
+        <button class="btn btn-ghost btn-sm" onclick="closeSuccessModal()">Close</button>
+        <button class="btn btn-primary btn-sm" onclick="closeSuccessModal(); document.getElementById('inquiriesContainer')?.scrollIntoView({behavior:'smooth'});">View My Inquiries</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Spawn confetti
+  spawnConfetti(overlay.querySelector('.success-modal'));
+
+  // Close on backdrop click
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeSuccessModal();
+  });
+
+  // Auto-close after 6s
+  overlay._autoClose = setTimeout(() => closeSuccessModal(), 6000);
+}
+
+function closeSuccessModal() {
+  const modal = document.getElementById('interestSuccessModal');
+  if (!modal) return;
+  clearTimeout(modal._autoClose);
+  modal.classList.remove('open');
+  setTimeout(() => modal.remove(), 300);
+}
+
+function spawnConfetti(container) {
+  if (!container) return;
+  const colors = ['#34d399','#00e5cc','#fbbf24','#60a5fa','#a78bfa','#f87171','#fb923c'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-particle';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = (20 + Math.random() * 60) + '%';
+    p.style.top = (10 + Math.random() * 20) + '%';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+    p.style.width = (4 + Math.random() * 6) + 'px';
+    p.style.height = (4 + Math.random() * 6) + 'px';
+    container.appendChild(p);
+    // Remove after animation
+    setTimeout(() => p.remove(), 2000);
   }
 }
 
@@ -754,10 +826,40 @@ async function loadResearcherPatients(trial_id) {
 
   trial_id = trial_id || document.getElementById('trialSelector')?.value || 'T001';
 
+  // Also update the trial info card with real data
+  try {
+    const trialData = await apiFetch(`/trials/${trial_id}`);
+    const titleEl = document.getElementById('trialInfoTitle');
+    const pillsEl = document.getElementById('trialInfoPills');
+    const locsEl  = document.getElementById('trialInfoLocations');
+    if (titleEl) titleEl.textContent = trialData.title || trial_id;
+    if (pillsEl) pillsEl.innerHTML = `
+      <span class="pill pill-teal">Phase ${trialData.phase}</span>
+      <span class="pill pill-green">Active</span>
+      <span class="pill pill-gray">${trialData.disease_area || ''}</span>
+      <span class="pill pill-gray">${trialData.sponsor || ''}</span>
+    `;
+    if (locsEl) locsEl.textContent = '📍 ' + (trialData.locations || []).join(' · ');
+  } catch(_) { /* trial details not critical */ }
+
   try {
     const patients = await apiGetMatchedPatients(trial_id);
+
+    // Update trial info stats from real data
+    const matchesEl  = document.getElementById('trialInfoMatches');
+    const acceptedEl = document.getElementById('trialInfoAccepted');
+    const pendingEl  = document.getElementById('trialInfoPending');
+    const declinedEl = document.getElementById('trialInfoDeclined');
+    if (matchesEl) matchesEl.textContent = patients.length;
+    const accepted = patients.filter(p => p.inquiry_status === 'accepted').length;
+    const pending  = patients.filter(p => p.inquiry_status === 'pending').length;
+    const declined = patients.filter(p => p.inquiry_status === 'declined').length;
+    if (acceptedEl) acceptedEl.textContent = accepted;
+    if (pendingEl)  pendingEl.textContent  = pending;
+    if (declinedEl) declinedEl.textContent = declined;
+
     if (!patients.length) {
-      container.innerHTML = '<p class="text-muted" style="padding:24px;">No matched patients yet.</p>';
+      container.innerHTML = '<p class="text-muted" style="padding:24px;">No matched patients yet. Patients will appear here once they submit their health details and get matched to this trial.</p>';
       return;
     }
     renderPatientCards(patients, container, trial_id);
@@ -838,6 +940,95 @@ async function respondToInquiry(patient_hash, trial_id, action) {
     loadResearcherPatients(trial_id);
   } catch(e) {
     showToast(e.message, 'error');
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE: RESEARCHER DASHBOARD — load real data
+   ══════════════════════════════════════════════════════════════ */
+async function loadResearcherDashboard() {
+  const institution = window._session.full_name || 'Researcher';
+  const subtitleEl = document.getElementById('researcherSubtitle');
+  if (subtitleEl && window._session.full_name) {
+    subtitleEl.textContent = `${window._session.full_name} — Researcher Portal`;
+  }
+
+  try {
+    const trials = await apiGetTrials();
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    // Stats
+    set('rstat-trials', trials.length);
+
+    // Count matches and inquiries across all trials
+    let totalMatches = 0;
+    let totalPending = 0;
+    let totalAccepted = 0;
+
+    // Load inquiries for each trial to get real counts
+    const trialInquiries = {};
+    for (const t of trials) {
+      try {
+        const patients = await apiGetMatchedPatients(t.trial_id);
+        totalMatches += patients.length;
+        const pending  = patients.filter(p => p.inquiry_status === 'pending').length;
+        const accepted = patients.filter(p => p.inquiry_status === 'accepted').length;
+        totalPending  += pending;
+        totalAccepted += accepted;
+        trialInquiries[t.trial_id] = { matches: patients.length, pending, accepted };
+      } catch(_) {
+        trialInquiries[t.trial_id] = { matches: 0, pending: 0, accepted: 0 };
+      }
+    }
+
+    set('rstat-matches', totalMatches);
+    set('rstat-inquiries', totalPending);
+    set('rstat-accepted', totalAccepted);
+
+    // Populate trial list
+    const trialsList = document.getElementById('researcherTrialsList');
+    if (trialsList) {
+      if (!trials.length) {
+        trialsList.innerHTML = '<div class="text-muted" style="padding:24px 20px; font-size:13px;">No trials yet. Start by adding a new trial.</div>';
+      } else {
+        trialsList.innerHTML = trials.map(t => {
+          const info = trialInquiries[t.trial_id] || { matches: 0, pending: 0 };
+          return `
+          <div class="trial-row">
+            <div>
+              <h4 style="font-size:14px; font-weight:600; margin-bottom:6px;">${t.trial_id} — ${t.title}</h4>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                <span class="pill pill-teal" style="font-size:11px;">Phase ${t.phase}</span>
+                <span class="pill pill-green" style="font-size:11px;">Active</span>
+                <span class="pill pill-gray" style="font-size:11px;">${t.disease_area}</span>
+              </div>
+              <div style="font-size:12px; color:var(--muted);">${info.matches} matches &nbsp;·&nbsp; ${info.pending > 0
+                ? `<span style="color:var(--error);">${info.pending} new inquiries 🔴</span>`
+                : '0 new inquiries'}</div>
+            </div>
+            <a href="researcher-trial.html" class="text-teal" style="font-size:12px; white-space:nowrap;">View Patients →</a>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Activity feed — show "no activity" for new researcher
+    const activityFeed = document.getElementById('researcherActivityFeed');
+    if (activityFeed) {
+      if (totalMatches === 0 && totalPending === 0) {
+        activityFeed.innerHTML = '<div class="text-muted" style="padding:20px; font-size:13px;">No recent activity. Activity will appear here as patients match with your trials.</div>';
+      } else {
+        // Build real activity items from data
+        let items = [];
+        if (totalPending > 0) items.push(`<div class="activity-item"><div class="act-dot" style="background:var(--warning);"></div><span>${totalPending} pending inquiry(s) awaiting review</span><span class="act-time">Now</span></div>`);
+        if (totalAccepted > 0) items.push(`<div class="activity-item"><div class="act-dot" style="background:var(--success);"></div><span>${totalAccepted} patient(s) accepted</span><span class="act-time">Recent</span></div>`);
+        if (totalMatches > 0) items.push(`<div class="activity-item"><div class="act-dot" style="background:#60a5fa;"></div><span>${totalMatches} total patient matches found</span><span class="act-time">Recent</span></div>`);
+        activityFeed.innerHTML = items.join('');
+      }
+    }
+  } catch(e) {
+    console.warn('Could not load researcher dashboard:', e.message);
   }
 }
 
@@ -982,6 +1173,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (page === 'admin-dashboard.html') {
     loadAdminStats();
+  }
+
+  if (page === 'researcher-dashboard.html') {
+    loadResearcherDashboard();
   }
 
   if (page === 'patient-results.html') {

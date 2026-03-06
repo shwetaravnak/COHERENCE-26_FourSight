@@ -652,6 +652,155 @@ footer { background: var(--footer-bg); text-align: center; padding: 28px; color:
 @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
 .spin { animation: spin 1s linear infinite; display: inline-block; }
 
+/* ── Success Modal (I'm Interested) ──────────────────────── */
+.success-modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.success-modal-overlay.open { display: flex; }
+
+.success-modal {
+  background: var(--surface);
+  border: 1px solid rgba(52,211,153,0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(52,211,153,0.15), 0 8px 48px rgba(0,0,0,0.6);
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  padding: 48px 36px 40px;
+  position: relative;
+  overflow: hidden;
+  animation: successSlideIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes successSlideIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.success-modal::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--success), #60a5fa, var(--primary));
+  background-size: 300% 100%;
+  animation: gradientShift 2s linear infinite;
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.success-check-wrap {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: rgba(52,211,153,0.12);
+  border: 2px solid rgba(52,211,153,0.3);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  animation: checkPulse 1.5s ease-in-out infinite;
+  position: relative;
+}
+
+@keyframes checkPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.3); }
+  50%      { box-shadow: 0 0 0 12px rgba(52,211,153,0); }
+}
+
+.success-check-icon {
+  font-size: 42px;
+  animation: checkBounce .5s .2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes checkBounce {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.success-modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--success);
+}
+
+.success-modal p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.success-modal .success-trial-name {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+  margin: 12px 0 20px;
+  padding: 10px 16px;
+  background: rgba(0,229,204,0.06);
+  border: 1px solid rgba(0,229,204,0.15);
+  border-radius: var(--radius-input);
+}
+
+.success-modal .success-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251,191,36,0.12);
+  border: 1px solid rgba(251,191,36,0.25);
+  color: var(--warning);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.success-modal .success-actions {
+  display: flex; gap: 10px; justify-content: center; margin-top: 4px;
+}
+
+/* Confetti particles */
+.confetti-particle {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  animation: confettiFall 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes confettiFall {
+  0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translateY(120px) rotate(720deg) scale(0.3); }
+}
+
+/* ── Patient Nav (lighter version for patient flow) ──────── */
+.patient-nav {
+  background: var(--footer-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.patient-nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 32px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.patient-nav .nav-greeting {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--muted);
+}
+.patient-nav .nav-greeting strong {
+  color: var(--text); font-weight: 600;
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 900px) {
   .grid-4, .dash-stats, .kpi-strip { grid-template-columns: repeat(2,1fr); }

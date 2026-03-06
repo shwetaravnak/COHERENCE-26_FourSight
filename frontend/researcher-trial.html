@@ -60,23 +60,18 @@
       </select>
     </div>
 
-    <!-- TRIAL INFO CARD -->
-    <div class="trial-info-card">
+    <!-- TRIAL INFO CARD (populated dynamically) -->
+    <div class="trial-info-card" id="trialInfoCard">
       <div class="trial-info-left">
-        <h2 style="font-size:18px; margin-bottom:10px;">Diabetes Glucose Control Study</h2>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-          <span class="pill pill-teal">Phase 3</span>
-          <span class="pill pill-green">Active</span>
-          <span class="pill pill-gray">Endocrinology</span>
-          <span class="pill pill-gray">PharmaCo Research</span>
-        </div>
-        <div class="text-muted" style="font-size:13px;">📍 Mumbai &nbsp;·&nbsp; Delhi &nbsp;·&nbsp; Pune</div>
+        <h2 style="font-size:18px; margin-bottom:10px;" id="trialInfoTitle">Select a trial</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;" id="trialInfoPills"></div>
+        <div class="text-muted" style="font-size:13px;" id="trialInfoLocations"></div>
       </div>
       <div class="trial-info-right">
-        <div class="mini-stat"><div class="val text-teal">12</div><div class="lbl">Matches</div></div>
-        <div class="mini-stat"><div class="val text-success">4</div><div class="lbl">Accepted</div></div>
-        <div class="mini-stat"><div class="val" style="color:var(--warning);">3</div><div class="lbl">Pending</div></div>
-        <div class="mini-stat"><div class="val" style="color:var(--error);">2</div><div class="lbl">Declined</div></div>
+        <div class="mini-stat"><div class="val text-teal" id="trialInfoMatches">0</div><div class="lbl">Matches</div></div>
+        <div class="mini-stat"><div class="val text-success" id="trialInfoAccepted">0</div><div class="lbl">Accepted</div></div>
+        <div class="mini-stat"><div class="val" style="color:var(--warning);" id="trialInfoPending">0</div><div class="lbl">Pending</div></div>
+        <div class="mini-stat"><div class="val" style="color:var(--error);" id="trialInfoDeclined">0</div><div class="lbl">Declined</div></div>
       </div>
     </div>
 
@@ -90,75 +85,7 @@
 
     <!-- PATIENT CARDS (populated by loadResearcherPatients) -->
     <div id="patientsContainer">
-    <!-- PATIENT CARD 1 — NEW INQUIRY (static placeholder) -->
-    <div class="patient-card">
-      <div class="left-border" style="background:var(--primary);"></div>
-      <div class="patient-card-body">
-        <div style="position:absolute; top:16px; right:16px;"><span class="pill pill-red">🔴 NEW INQUIRY</span></div>
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-          <span class="patient-id">#a3f9b2</span>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="patient-score">87%</span>
-            <span class="pill pill-gray">Mumbai</span>
-          </div>
-        </div>
-        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 45 &nbsp;|&nbsp; Male &nbsp;|&nbsp; Type 2 Diabetes</div>
-        <div class="text-muted" style="font-size:12px; margin-bottom:12px;">HbA1c: 8.2 &nbsp;|&nbsp; BMI: 27.4</div>
-        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:87%; background:linear-gradient(90deg,var(--primary),var(--success));"></div></div>
-        <div class="criteria-row">
-          <span class="crit-badge crit-ok">✅ Age</span>
-          <span class="crit-badge crit-ok">✅ Diagnosis</span>
-          <span class="crit-badge crit-ok">✅ HbA1c</span>
-          <span class="crit-badge crit-fail">❌ BMI</span>
-          <span class="crit-badge crit-ok">✅ Medication</span>
-        </div>
-        <div class="patient-actions">
-          <button class="btn btn-ghost btn-sm" onclick="openModal('inquiryModal')">View Details</button>
-          <button class="btn btn-success btn-sm" onclick="openModal('inquiryModal')">✅ Accept</button>
-          <button class="btn btn-danger btn-sm">❌ Decline</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PATIENT CARD 2 — NO INQUIRY -->
-    <div class="patient-card">
-      <div class="left-border" style="background:var(--border);"></div>
-      <div class="patient-card-body">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-          <span class="patient-id">#f8b3d1</span>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="patient-score" style="color:var(--warning);">72%</span>
-            <span class="pill pill-gray">Delhi</span>
-          </div>
-        </div>
-        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 52 &nbsp;|&nbsp; Female &nbsp;|&nbsp; Type 2 Diabetes</div>
-        <div class="text-muted" style="font-size:12px; margin-bottom:12px;">HbA1c: 7.8 &nbsp;|&nbsp; BMI: 29.1</div>
-        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:72%; background:var(--warning);"></div></div>
-        <div class="patient-actions">
-          <button class="btn btn-ghost btn-sm">View Details</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PATIENT CARD 3 — ACCEPTED -->
-    <div class="patient-card">
-      <div class="left-border" style="background:var(--success);"></div>
-      <div class="patient-card-body">
-        <div style="position:absolute; top:16px; right:16px;"><span class="pill pill-green">✅ Accepted</span></div>
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-          <span class="patient-id">#b2d1c4</span>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span class="patient-score text-success">91%</span>
-            <span class="pill pill-gray">Mumbai</span>
-          </div>
-        </div>
-        <div class="text-muted" style="font-size:13px; margin-bottom:8px;">Age: 38 &nbsp;|&nbsp; Male &nbsp;|&nbsp; Type 2 Diabetes</div>
-        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:91%; background:var(--success);"></div></div>
-        <div class="patient-actions">
-          <button class="btn btn-ghost btn-sm">View Details</button>
-        </div>
-      </div>
-    </div>
+      <p class="text-muted" style="padding:24px;">No matched patients yet. Patients will appear here once they submit their health details and get matched to this trial.</p>
     </div><!-- /patientsContainer -->
 
   </div>
