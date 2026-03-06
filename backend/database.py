@@ -31,4 +31,4 @@ def get_db():
 def init_db():
     from models import Patient, Trial, MatchResult, Inquiry, User
     Base.metadata.create_all(bind=engine)
-    print("✅ Database tables created")
+    print("[OK] Database tables created")

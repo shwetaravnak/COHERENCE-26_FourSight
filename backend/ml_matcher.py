@@ -5,9 +5,9 @@ from sentence_transformers import SentenceTransformer, util
 # This loads when server starts
 # Downloads ~80MB first time only
 # Never loads again after that
-print("⏳ Loading ML model...")
+print("[*] Loading ML model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
-print("✅ ML model loaded")
+print("[OK] ML model loaded")
 
 
 # ── MAIN ML MATCHER ──────────────────────────────────

@@ -51,7 +51,7 @@ def startup():
     init_db()
     # load trials from JSON into DB
     seed_trials()
-    print("🚀 ClinMatch AI server started")
+    print("[OK] ClinMatch AI server started")
 
 
 def seed_trials():
@@ -61,7 +61,7 @@ def seed_trials():
     # only seed if trials table is empty
     existing = db.query(Trial).count()
     if existing > 0:
-        print(f"✅ {existing} trials already in database")
+        print(f"[OK] {existing} trials already in database")
         db.close()
         return
 
@@ -72,7 +72,7 @@ def seed_trials():
     )
 
     if not os.path.exists(trials_path):
-        print("❌ trials.json not found")
+        print("[ERR] trials.json not found")
         db.close()
         return
 
@@ -102,7 +102,7 @@ def seed_trials():
 
     db.commit()
     db.close()
-    print(f"✅ {len(trials_data)} trials seeded into database")
+    print(f"[OK] {len(trials_data)} trials seeded into database")
 
 
 # ════════════════════════════════════════════════════
