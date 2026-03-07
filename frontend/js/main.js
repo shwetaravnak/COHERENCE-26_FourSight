@@ -391,24 +391,27 @@ async function handleRegister() {
 
 
 /* ══════════════════════════════════════════════════════════════
+   AUTO-CALCULATE BMI FROM HEIGHT & WEIGHT
+   ══════════════════════════════════════════════════════════════ */
+function autoCalcBMI() {
+  const h = parseFloat(document.getElementById('heightInput')?.value);
+  const w = parseFloat(document.getElementById('weightInput')?.value);
+  const bmiEl = document.getElementById('bmiInput');
+  if (bmiEl && h > 0 && w > 0) {
+    const heightM = h / 100;
+    const bmi = (w / (heightM * heightM)).toFixed(1);
+    bmiEl.value = bmi;
+  } else if (bmiEl) {
+    bmiEl.value = '';
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
    PAGE: PATIENT FORM
    ══════════════════════════════════════════════════════════════ */
 async function submitPatientForm() {
-  const ageEl    = document.querySelector('input[type="number"][placeholder="e.g. 45"]');
-  const cityEl   = document.querySelector('select.input-field');
-  const diagEl   = document.querySelectorAll('select.input-field')[1];
-  const genderEl = document.querySelector('.radio-pill.selected');
-  const labEls   = document.querySelectorAll('input[type="number"][step="0.1"]');
-
-  const history = [...document.querySelectorAll('.checkbox-item input:checked')]
-    .map(cb => cb.closest('label').textContent.trim());
-
-  const meds = getChips('medChips');
-
-  // gender: M / F / Other → normalise to M or F
-  const genderRaw = genderEl?.textContent.trim() || 'M';
-  const gender    = genderRaw === 'F' ? 'F' : 'M';
-
+  // ── CHECK LOGIN FIRST ─────────────────────────────
   const userId = window._session.user_id;
   if (!userId) {
     showToast('Please log in before submitting your health details', 'error');
@@ -416,25 +419,106 @@ async function submitPatientForm() {
     return;
   }
 
+  const ageEl      = document.getElementById('ageInput');
+  const cityEl     = document.getElementById('citySelect');
+  const diagEl     = document.getElementById('diagSelect');
+  const genderEl   = document.querySelector('.radio-pill.selected');
+  const heightEl   = document.getElementById('heightInput');
+  const weightEl   = document.getElementById('weightInput');
+  const hba1cEl    = document.getElementById('hba1cInput');
+  const bmiEl      = document.getElementById('bmiInput');
+  const creatEl    = document.getElementById('creatinineInput');
+  const bpSysEl    = document.getElementById('bpSysInput');
+  const bpDiaEl    = document.getElementById('bpDiaInput');
+  const hemoEl     = document.getElementById('hemoglobinInput');
+
+  const history = [...document.querySelectorAll('.checkbox-item input:checked')]
+    .map(cb => cb.closest('label').textContent.trim());
+
+  const meds = getChips('medChips');
+
+  // ── MANDATORY FIELD VALIDATION ───────────────────
+  const errors = [];
+  const markErr = (el) => { if (el) el.style.borderColor = 'var(--error)'; };
+  const clearErr = (el) => { if (el) el.style.borderColor = ''; };
+
+  // Personal details
+  if (!ageEl?.value || isNaN(parseInt(ageEl.value)) || parseInt(ageEl.value) < 1) {
+    errors.push('Age is required'); markErr(ageEl);
+  } else clearErr(ageEl);
+
+  if (!genderEl) errors.push('Please select a gender');
+
+  if (!heightEl?.value || parseFloat(heightEl.value) < 50) {
+    errors.push('Height is required'); markErr(heightEl);
+  } else clearErr(heightEl);
+
+  if (!weightEl?.value || parseFloat(weightEl.value) < 10) {
+    errors.push('Weight is required'); markErr(weightEl);
+  } else clearErr(weightEl);
+
+  if (!cityEl?.value) {
+    errors.push('Please select a city'); markErr(cityEl);
+  } else clearErr(cityEl);
+
+  // Medical info
+  if (!diagEl?.value) {
+    errors.push('Please select a diagnosis'); markErr(diagEl);
+  } else clearErr(diagEl);
+
+  if (meds.length === 0) {
+    errors.push('Please add at least one medication');
+  }
+
+  // Lab values
+  if (!hba1cEl?.value) {
+    errors.push('HbA1c is required'); markErr(hba1cEl);
+  } else clearErr(hba1cEl);
+
+  if (!creatEl?.value) {
+    errors.push('Creatinine is required'); markErr(creatEl);
+  } else clearErr(creatEl);
+
+  if (!bpSysEl?.value || !bpDiaEl?.value) {
+    errors.push('Blood Pressure is required'); markErr(bpSysEl); markErr(bpDiaEl);
+  } else { clearErr(bpSysEl); clearErr(bpDiaEl); }
+
+  if (!hemoEl?.value) {
+    errors.push('Hemoglobin is required'); markErr(hemoEl);
+  } else clearErr(hemoEl);
+
+  if (errors.length > 0) {
+    showToast(errors[0], 'error');
+    return;
+  }
+
+  // gender: M / F / Other → normalise to M or F
+  const genderRaw = genderEl.textContent.trim();
+  const gender    = genderRaw === 'F' ? 'F' : 'M';
+
   const formData = {
     user_id:         userId,
-    age:             parseInt(ageEl?.value) || 45,
+    age:             parseInt(ageEl.value),
     gender:          gender,
-    diagnoses:       [diagEl?.value || 'Type 2 Diabetes'],
-    medications:     meds.length ? meds : ['Metformin'],
+    diagnoses:       [diagEl.value],
+    medications:     meds,
     lab_values: {
-      HbA1c:      parseFloat(labEls[0]?.value) || null,
-      BMI:        parseFloat(labEls[1]?.value) || null,
-      creatinine: parseFloat(labEls[2]?.value) || null
+      HbA1c:          parseFloat(hba1cEl.value),
+      BMI:            parseFloat(bmiEl?.value) || null,
+      creatinine:     parseFloat(creatEl.value),
+      blood_pressure: bpSysEl.value + '/' + bpDiaEl.value,
+      hemoglobin:     parseFloat(hemoEl.value),
+      height_cm:      parseFloat(heightEl.value),
+      weight_kg:      parseFloat(weightEl.value)
     },
     medical_history: history,
-    location_city:   cityEl?.value || 'Mumbai',
+    location_city:   cityEl.value,
     location_state:  'India'
   };
 
   // remove null lab values
   Object.keys(formData.lab_values).forEach(k => {
-    if (!formData.lab_values[k]) delete formData.lab_values[k];
+    if (formData.lab_values[k] === null || formData.lab_values[k] === undefined) delete formData.lab_values[k];
   });
 
   const btn = document.querySelector('a[href="patient-results.html"]');
@@ -474,8 +558,26 @@ async function handleFileUpload(file) {
     clearInterval(iv);
     if (bar) bar.style.width = '100%';
 
+    const extracted = result.extracted;
+
+    // ── CHECK IMAGE QUALITY ────────────────────────
+    if (extracted.quality_warning) {
+      // Show alert for poor quality images
+      const alertMsg = extracted.quality_warning;
+      if (extracted.fields_extracted <= 1) {
+        // Very poor quality — alert and let them re-upload
+        if (loader) loader.style.display = 'none';
+        if (zone)   zone.style.display = 'block';
+        alert('⚠️ Poor Image Quality\n\n' + alertMsg + '\n\nExtracted ' + extracted.fields_extracted + ' of ' + extracted.fields_total + ' fields.');
+        showToast('Image quality too low. Please try again.', 'error');
+        return;
+      }
+      // Medium quality — warn but continue
+      showToast('⚠️ ' + alertMsg, 'info');
+    }
+
     // store extracted data for OCR confirm page
-    window._session.ocr_data = result.extracted;
+    window._session.ocr_data = extracted;
     showToast('Report read successfully!');
     setTimeout(() => window.location.href = 'patient-ocr-confirm.html', 600);
   } catch(e) {
@@ -517,57 +619,158 @@ function populateOcrTable() {
   const ocr = window._session.ocr_data;
   if (!ocr) return;  // no data, keep static HTML
 
+  // Show quality warning if present
+  const warningEl = document.getElementById('ocrQualityWarning');
+  if (warningEl && ocr.quality_warning) {
+    warningEl.textContent = '⚠️ ' + ocr.quality_warning;
+    warningEl.style.display = 'block';
+  }
+
+  // Update status banner based on quality
+  const bannerEl = document.getElementById('ocrStatusBanner');
+  if (bannerEl && ocr.fields_extracted !== undefined) {
+    bannerEl.innerHTML = `✅ Extracted ${ocr.fields_extracted} of ${ocr.fields_total} fields &nbsp;·&nbsp; Please review and fill in any missing information`;
+  }
+
   const rows = {
-    'Age':         ocr.age,
-    'Diagnosis':   (ocr.diagnoses || []).join(', '),
-    'HbA1c':       ocr.lab_values?.HbA1c,
-    'BMI':         ocr.lab_values?.BMI,
-    'Medications': (ocr.medications || []).join(', '),
-    'Creatinine':  ocr.lab_values?.creatinine,
-    'City':        ocr.location_city
+    'Age':            ocr.age,
+    'Gender':         ocr.gender,
+    'Diagnosis':      (ocr.diagnoses || []).join(', '),
+    'HbA1c':          ocr.lab_values?.HbA1c,
+    'BMI':            ocr.lab_values?.BMI,
+    'Medications':    (ocr.medications || []).join(', '),
+    'Creatinine':     ocr.lab_values?.creatinine,
+    'Blood Pressure': ocr.lab_values?.blood_pressure,
+    'Hemoglobin':     ocr.lab_values?.hemoglobin,
+    'City':           ocr.location_city
   };
 
   const confMap = ocr.confidence || {};
   const tbody = document.querySelector('.ocr-table tbody');
   if (!tbody) return;
 
+  const hasMissing = Object.values(rows).some(v => v === null || v === undefined || v === '' || v === 0);
+
   tbody.innerHTML = Object.entries(rows).map(([field, val]) => {
-    const conf     = confMap[field.toLowerCase()] || confMap['lab_values'] || 'medium';
+    const isEmpty = val === null || val === undefined || val === '' || val === 0;
+    const conf     = isEmpty ? 'low' : (confMap[field.toLowerCase()] || confMap['lab_values'] || 'medium');
     const confColor = conf === 'high' ? 'var(--success)' : conf === 'low' ? 'var(--error)' : 'var(--warning)';
     const confText  = conf.charAt(0).toUpperCase() + conf.slice(1);
-    return `<tr>
-      <td>${field}</td>
-      <td>${val || '—'}</td>
+    const rowClass = isEmpty ? ' class="low-conf"' : '';
+    // For missing fields, show an editable input so patient can fill them
+    const displayVal = isEmpty
+      ? `<input type="text" class="input-field ocr-fill-input" data-field="${field}" placeholder="Enter ${field}" style="padding:4px 8px;font-size:13px;height:32px;border-color:var(--error);">`
+      : `<span class="ocr-value" data-field="${field}">${val}</span>`;
+    return `<tr${rowClass}>
+      <td>${field}${isEmpty ? ' <span style="color:var(--error);font-weight:700;">*</span>' : ''}</td>
+      <td>${displayVal}</td>
       <td><span class="conf-dot" style="background:${confColor};"></span>${confText}</td>
       <td><button class="edit-btn" onclick="inlineEdit(this,'${field}')">✏️</button></td>
     </tr>`;
   }).join('');
+
+  // Show help text if missing fields
+  if (hasMissing) {
+    const helpDiv = document.getElementById('ocrMissingHelp');
+    if (helpDiv) {
+      helpDiv.style.display = 'block';
+      helpDiv.innerHTML = '⚠️ <strong>Some fields are missing.</strong> Please fill in the highlighted fields marked with <span style="color:var(--error);font-weight:700;">*</span> before proceeding.';
+    }
+  }
 }
 
 function inlineEdit(btn, fieldName) {
   const td = btn.closest('tr').querySelector('td:nth-child(2)');
-  const currentVal = td.textContent.trim();
-  const newVal = prompt(`Edit ${fieldName}:`, currentVal);
-  if (newVal !== null && newVal.trim()) td.textContent = newVal.trim();
+  // Check if there's already an input (for missing fields)
+  const existingInput = td.querySelector('input');
+  if (existingInput) {
+    existingInput.focus();
+    return;
+  }
+  const spanEl = td.querySelector('.ocr-value');
+  const currentVal = spanEl ? spanEl.textContent.trim() : td.textContent.trim();
+  const newVal = prompt(`Edit ${fieldName}:`, currentVal === '— Not Found' ? '' : currentVal);
+  if (newVal !== null && newVal.trim()) {
+    if (spanEl) {
+      spanEl.textContent = newVal.trim();
+    } else {
+      td.innerHTML = `<span class="ocr-value" data-field="${fieldName}">${newVal.trim()}</span>`;
+    }
+    // Update OCR data in session
+    updateOcrField(fieldName, newVal.trim());
+  }
+}
+
+function updateOcrField(fieldName, value) {
+  const ocr = window._session.ocr_data;
+  if (!ocr) return;
+  switch(fieldName) {
+    case 'Age': ocr.age = parseInt(value) || null; break;
+    case 'Gender': ocr.gender = value; break;
+    case 'Diagnosis': ocr.diagnoses = value.split(',').map(s => s.trim()).filter(Boolean); break;
+    case 'HbA1c': if (!ocr.lab_values) ocr.lab_values = {}; ocr.lab_values.HbA1c = parseFloat(value) || null; break;
+    case 'BMI': if (!ocr.lab_values) ocr.lab_values = {}; ocr.lab_values.BMI = parseFloat(value) || null; break;
+    case 'Medications': ocr.medications = value.split(',').map(s => s.trim()).filter(Boolean); break;
+    case 'Creatinine': if (!ocr.lab_values) ocr.lab_values = {}; ocr.lab_values.creatinine = parseFloat(value) || null; break;
+    case 'Blood Pressure': if (!ocr.lab_values) ocr.lab_values = {}; ocr.lab_values.blood_pressure = value; break;
+    case 'Hemoglobin': if (!ocr.lab_values) ocr.lab_values = {}; ocr.lab_values.hemoglobin = parseFloat(value) || null; break;
+    case 'City': ocr.location_city = value; break;
+  }
 }
 
 async function confirmOcrAndSubmit() {
   const ocr = window._session.ocr_data;
   if (!ocr) {
-    // just navigate (no OCR data)
-    window.location.href = 'patient-results.html';
+    showToast('No OCR data available. Please upload a report first.', 'error');
+    return;
+  }
+
+  // ── READ FILLED-IN VALUES FROM TABLE INPUTS ──────
+  document.querySelectorAll('.ocr-fill-input').forEach(input => {
+    const field = input.dataset.field;
+    const val = input.value.trim();
+    if (val) updateOcrField(field, val);
+  });
+
+  // Also read any edited span values
+  document.querySelectorAll('.ocr-value').forEach(span => {
+    const field = span.dataset.field;
+    const val = span.textContent.trim();
+    if (val && val !== '— Not Found') updateOcrField(field, val);
+  });
+
+  // ── VALIDATE CRITICAL FIELDS ────────────────────
+  const errors = [];
+  if (!ocr.age) errors.push('Age');
+  if (!ocr.gender) errors.push('Gender');
+  if (!ocr.diagnoses || ocr.diagnoses.length === 0) errors.push('Diagnosis');
+  if (!ocr.location_city) errors.push('City');
+
+  if (errors.length > 0) {
+    showToast('Please fill in: ' + errors.join(', '), 'error');
+    // Highlight unfilled inputs
+    document.querySelectorAll('.ocr-fill-input').forEach(input => {
+      if (!input.value.trim()) input.style.borderColor = 'var(--error)';
+    });
+    return;
+  }
+
+  const userId = window._session.user_id;
+  if (!userId) {
+    showToast('Please log in first', 'error');
+    setTimeout(() => window.location.href = 'login.html', 1500);
     return;
   }
 
   const formData = {
-    user_id:         window._session.user_id || 'demo_user',
-    age:             ocr.age || 30,
-    gender:          ocr.gender || 'M',
+    user_id:         userId,
+    age:             ocr.age,
+    gender:          ocr.gender,
     diagnoses:       ocr.diagnoses || [],
     medications:     ocr.medications || [],
     lab_values:      ocr.lab_values || {},
     medical_history: ocr.medical_history || [],
-    location_city:   ocr.location_city || 'Mumbai',
+    location_city:   ocr.location_city,
     location_state:  'India'
   };
 
@@ -587,23 +790,35 @@ async function confirmOcrAndSubmit() {
    ══════════════════════════════════════════════════════════════ */
 async function loadPatientResults() {
   const patient_hash = window._session.patient_hash;
+  const countText = document.getElementById('matchCountText');
+  const container = document.getElementById('matchCards');
 
   if (!patient_hash) {
-    // no session hash — keep static demo cards but show a notice
-    const notice = document.createElement('div');
-    notice.style.cssText = 'background:rgba(0,229,204,0.1);border:1px solid var(--primary);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;';
-    notice.textContent = 'ℹ️ Showing demo results. Submit your health details to see your real matches.';
-    const h1 = document.querySelector('h1');
-    if (h1) h1.parentElement.insertBefore(notice, h1.nextSibling);
+    if (countText) countText.textContent = 'No matches yet';
+    if (container) container.innerHTML = `
+      <div style="text-align:center; padding:48px 20px;">
+        <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+        <h3 style="font-size:18px; margin-bottom:8px;">No Match Results Yet</h3>
+        <p class="text-muted" style="font-size:14px; margin-bottom:20px;">Submit your health details first to find matching clinical trials.</p>
+        <a href="patient-method.html" class="btn btn-primary">Get Started →</a>
+      </div>`;
     return;
   }
 
   try {
     const matches = await apiGetMatches(patient_hash);
-    if (matches.length) renderMatchCards(matches);
+    // Update header with actual match count
+    if (countText) countText.textContent = `Found ${matches.length} trial${matches.length !== 1 ? 's' : ''} matching your profile`;
+    if (matches.length) {
+      renderMatchCards(matches);
+    } else {
+      if (container) container.innerHTML = '<p class="text-muted" style="padding:24px;text-align:center;">No matching trials found for your profile.</p>';
+    }
     loadPatientInquiries(patient_hash);
   } catch(e) {
     console.warn('Could not load matches:', e.message);
+    if (countText) countText.textContent = 'Could not load matches';
+    if (container) container.innerHTML = '<p class="text-muted" style="padding:24px;text-align:center;">Error loading matches. Please try again.</p>';
   }
 }
 
@@ -820,6 +1035,28 @@ async function loadPatientInquiries(patient_hash) {
 /* ══════════════════════════════════════════════════════════════
    PAGE: RESEARCHER TRIAL — load matched patients
    ══════════════════════════════════════════════════════════════ */
+
+// Populate trial selector from API instead of hardcoded options
+async function populateTrialSelector() {
+  const selector = document.getElementById('trialSelector');
+  if (!selector) return;
+
+  try {
+    const trials = await apiGetTrials();
+    selector.innerHTML = trials.map(t =>
+      `<option value="${t.trial_id}">${t.trial_id} — ${t.title}</option>`
+    ).join('');
+    // Load first trial's patients
+    if (trials.length > 0) {
+      loadResearcherPatients(trials[0].trial_id);
+    } else {
+      selector.innerHTML = '<option value="">No trials available</option>';
+    }
+  } catch(e) {
+    console.warn('Could not load trials for selector:', e.message);
+  }
+}
+
 async function loadResearcherPatients(trial_id) {
   const container = document.getElementById('patientsContainer');
   if (!container) return;
@@ -1058,6 +1295,157 @@ async function loadAdminStats() {
 
 
 /* ══════════════════════════════════════════════════════════════
+   PAGE: ADMIN RESEARCHERS — list all researchers
+   ══════════════════════════════════════════════════════════════ */
+async function loadAdminResearchers() {
+  try {
+    const users = await apiGetAllUsers();
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+
+    const researchers = users.filter(u => u.role === 'researcher');
+    const patients = users.filter(u => u.role === 'patient');
+    const admins = users.filter(u => u.role === 'admin');
+
+    // Update stats
+    set('userstat-researchers', researchers.length);
+    set('userstat-patients', patients.length);
+    set('userstat-admins', admins.length);
+    set('userstat-total', users.length);
+
+    const countPill = document.getElementById('researcherCountPill');
+    if (countPill) countPill.textContent = researchers.length + ' researcher' + (researchers.length !== 1 ? 's' : '');
+
+    // Render researchers table
+    const tbody = document.getElementById('researchersTableBody');
+    if (!tbody) return;
+
+    if (researchers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="text-align:center;padding:40px;">No researchers registered yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = researchers.map(r => {
+      const date = new Date(r.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' });
+      return `<tr>
+        <td><strong>${r.full_name}</strong></td>
+        <td>${r.email}</td>
+        <td>${r.institution || '—'}</td>
+        <td>${date}</td>
+        <td><span class="pill pill-green" style="font-size:11px;">Active</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    console.warn('Could not load researchers:', e.message);
+    const tbody = document.getElementById('researchersTableBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="text-align:center;padding:20px;">Error loading researchers.</td></tr>';
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE: PATIENT DASHBOARD — enquiry tracking
+   ══════════════════════════════════════════════════════════════ */
+async function loadPatientDashboard() {
+  const patient_hash = window._session.patient_hash;
+  const container = document.getElementById('dashInquiriesContainer');
+  const countEl = document.getElementById('dashInquiryCount');
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  if (!patient_hash) {
+    set('pstat-matches', '0');
+    if (container) container.innerHTML = `
+      <div style="text-align:center; padding:40px 20px;">
+        <div style="font-size:48px; margin-bottom:16px;">📋</div>
+        <h3 style="font-size:18px; margin-bottom:8px;">No Data Yet</h3>
+        <p class="text-muted" style="font-size:14px; margin-bottom:20px;">Submit your health details to find matching trials and track your enquiries here.</p>
+        <a href="patient-method.html" class="btn btn-primary">Find Trials →</a>
+      </div>`;
+    return;
+  }
+
+  // Load matches count
+  try {
+    const matches = await apiGetMatches(patient_hash);
+    set('pstat-matches', matches.length);
+  } catch(_) {
+    set('pstat-matches', '0');
+  }
+
+  // Load inquiries
+  try {
+    const inquiries = await apiGetPatientInquiries(patient_hash);
+    if (countEl) countEl.textContent = inquiries.length;
+
+    const pending = inquiries.filter(i => i.status === 'pending').length;
+    const accepted = inquiries.filter(i => i.status === 'accepted').length;
+    const declined = inquiries.filter(i => i.status === 'declined').length;
+    set('pstat-pending', pending);
+    set('pstat-accepted', accepted);
+    set('pstat-declined', declined);
+
+    if (!inquiries.length) {
+      if (container) container.innerHTML = `
+        <div style="text-align:center; padding:40px 20px;">
+          <div style="font-size:48px; margin-bottom:16px;">📬</div>
+          <h3 style="font-size:18px; margin-bottom:8px;">No Enquiries Yet</h3>
+          <p class="text-muted" style="font-size:14px; margin-bottom:20px;">Express interest in a matched trial to start tracking your enquiries.</p>
+          <a href="patient-results.html" class="btn btn-primary">View My Matches →</a>
+        </div>`;
+      return;
+    }
+
+    if (container) {
+      container.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">` +
+        inquiries.map(inq => {
+          const statusClass = inq.status === 'accepted' ? 'pill-green' :
+                              inq.status === 'declined' ? 'pill-red' : 'pill-yellow';
+          const statusIcon  = inq.status === 'accepted' ? '✅ Accepted' :
+                              inq.status === 'declined' ? '❌ Declined' : '⏳ Pending';
+          const scoreColor = inq.match_score >= 0.8 ? 'var(--success)' :
+                             inq.match_score >= 0.6 ? 'var(--warning)' : 'var(--error)';
+          const scorePct = Math.round(inq.match_score * 100);
+          const date = new Date(inq.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' });
+
+          return `
+          <div class="card" style="position:relative;">
+            <div style="position:absolute;top:12px;right:12px;">
+              <span class="pill ${statusClass}" style="font-size:11px;">${statusIcon}</span>
+            </div>
+            <h4 style="font-size:14px;margin-bottom:8px;padding-right:100px;">${inq.trial_title || inq.trial_id}</h4>
+            <div class="text-muted" style="font-size:12px;margin-bottom:8px;">Sent: ${date}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="font-size:12px;color:var(--muted);">Match Score:</span>
+              <span style="font-weight:700;color:${scoreColor};">${scorePct}%</span>
+            </div>
+            <div class="score-bar-wrap" style="margin-bottom:8px;">
+              <div class="score-bar-fill" style="width:${scorePct}%;background:${scoreColor};"></div>
+            </div>
+            ${inq.researcher_note
+              ? `<div style="background:var(--bg);border-left:2px solid var(--success);padding:8px 12px;border-radius:0 4px 4px 0;font-size:12px;color:var(--muted);margin-top:8px;font-style:italic;">
+                  "${inq.researcher_note}"
+                </div>`
+              : ''}
+            ${inq.patient_note
+              ? `<div style="font-size:11px;color:var(--muted);margin-top:6px;">Your note: "${inq.patient_note}"</div>`
+              : ''}
+          </div>`;
+        }).join('') +
+      `</div>`;
+    }
+  } catch(e) {
+    console.warn('Could not load patient dashboard:', e.message);
+    if (container) container.innerHTML = '<p class="text-muted" style="padding:20px;">Error loading enquiries.</p>';
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
    PAGE: ADMIN TRIALS — render trial list
    ══════════════════════════════════════════════════════════════ */
 async function renderTrialsFromAPI(containerId = 'trialsContainer') {
@@ -1175,12 +1563,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAdminStats();
   }
 
+  if (page === 'admin-researchers.html') {
+    loadAdminResearchers();
+  }
+
   if (page === 'researcher-dashboard.html') {
     loadResearcherDashboard();
   }
 
   if (page === 'patient-results.html') {
     loadPatientResults();
+  }
+
+  if (page === 'patient-dashboard.html') {
+    loadPatientDashboard();
   }
 
   if (page === 'patient-upload.html') {
@@ -1211,8 +1607,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (page === 'researcher-trial.html') {
+    // Populate trial selector from API and then load patients
+    populateTrialSelector();
     const selector = document.getElementById('trialSelector');
-    loadResearcherPatients(selector?.value || 'T001');
     if (selector) {
       selector.addEventListener('change', () => loadResearcherPatients(selector.value));
     }

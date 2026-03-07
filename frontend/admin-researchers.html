@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Researchers</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <div style="display:flex; align-items:center; gap:32px;">
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
+        <div class="dash-links">
+          <a href="admin-dashboard.html">Dashboard</a>
+          <a href="admin-researchers.html" class="active">Researchers</a>
+          <a href="admin-trials.html">Trials</a>
+          <a href="admin-reports.html">Reports</a>
+        </div>
+      </div>
+      <div class="dash-right">
+        <span class="nav-user-display" id="navUserDisplay">Welcome, Admin</span>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">A</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
+
+    <!-- HEADER -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h1 style="font-size:26px; margin-bottom:4px;">Registered Researchers</h1>
+        <p class="text-muted" style="font-size:13px;">Manage all researchers on the platform</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="pill pill-teal" id="researcherCountPill" style="font-size:13px;">0 researchers</span>
+      </div>
+    </div>
+
+    <!-- RESEARCHERS TABLE -->
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="criteria-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Institution</th>
+            <th>Registered</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="researchersTableBody">
+          <tr>
+            <td colspan="5" class="text-muted" style="text-align:center;padding:40px;">
+              <div class="spin" style="font-size:24px; display:inline-block;">⏳</div>
+              <div style="margin-top:8px;">Loading researchers...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ALSO SHOW PATIENTS COUNT -->
+    <div style="margin-top:32px;">
+      <h2 style="font-size:20px; margin-bottom:16px;">All Users Overview</h2>
+      <div class="dash-stats">
+        <div class="stat-card"><div class="stat-val text-teal" id="userstat-researchers">0</div><div class="stat-lbl">Researchers</div></div>
+        <div class="stat-card"><div class="stat-val" id="userstat-patients">0</div><div class="stat-lbl">Patients</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#a78bfa;" id="userstat-admins">0</div><div class="stat-lbl">Admins</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--warning);" id="userstat-total">0</div><div class="stat-lbl">Total Users</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

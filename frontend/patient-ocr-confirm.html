@@ -56,9 +56,10 @@
   <!-- CONTENT -->
   <div class="container-sm" style="padding-top:40px; padding-bottom:40px;">
 
-    <div class="success-banner" style="margin-bottom:28px;">
+    <div class="success-banner" id="ocrStatusBanner" style="margin-bottom:28px;">
       ✅ Report successfully read by AI &nbsp;·&nbsp; Please review and correct the extracted information
     </div>
+    <div class="warning-box" id="ocrQualityWarning" style="margin-bottom:16px; display:none;"></div>
 
     <h1 style="font-size:26px; margin-bottom:6px;">Verify Your Extracted Details</h1>
     <p class="text-muted" style="font-size:14px; margin-bottom:24px;">
@@ -77,54 +78,18 @@
           </tr>
         </thead>
         <tbody>
+          <!-- Populated dynamically by populateOcrTable() in main.js -->
           <tr>
-            <td>Age</td>
-            <td>45</td>
-            <td><span class="conf-dot" style="background:var(--success);"></span>High</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'Age')">✏️</button></td>
-          </tr>
-          <tr>
-            <td>Diagnosis</td>
-            <td>Type 2 Diabetes</td>
-            <td><span class="conf-dot" style="background:var(--success);"></span>High</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'Diagnosis')">✏️</button></td>
-          </tr>
-          <tr>
-            <td>HbA1c</td>
-            <td>8.2</td>
-            <td><span class="conf-dot" style="background:var(--success);"></span>High</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'HbA1c')">✏️</button></td>
-          </tr>
-          <tr>
-            <td>BMI</td>
-            <td id="bmi-val">27.4</td>
-            <td><span class="conf-dot" style="background:var(--warning);"></span>Medium</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'BMI')">✏️</button></td>
-          </tr>
-          <tr>
-            <td>Medications</td>
-            <td>Metformin</td>
-            <td><span class="conf-dot" style="background:var(--success);"></span>High</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'Medications')">✏️</button></td>
-          </tr>
-          <tr>
-            <td>Creatinine</td>
-            <td>0.9</td>
-            <td><span class="conf-dot" style="background:var(--warning);"></span>Medium</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'Creatinine')">✏️</button></td>
-          </tr>
-          <tr class="low-conf">
-            <td>City</td>
-            <td>Mumbai</td>
-            <td><span class="conf-dot" style="background:var(--error);"></span>Low</td>
-            <td><button class="edit-btn" onclick="inlineEdit(this, 'City')">✏️</button></td>
+            <td colspan="4" class="text-muted" style="text-align:center;padding:20px;">Loading extracted data...</td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <div id="ocrMissingHelp" class="warning-box" style="margin:20px 0; display:none;"></div>
+
     <div class="warning-box" style="margin:20px 0;">
-      ⚠️ Fields marked with low confidence may need manual correction
+      ⚠️ Fields marked with <span style="color:var(--error);font-weight:700;">*</span> are missing — please fill them in before proceeding
     </div>
 
     <!-- ACTIONS -->
@@ -136,13 +101,5 @@
   </div>
 
   <script src="js/main.js"></script>
-  <script>
-    function inlineEdit(btn, fieldName) {
-      const td = btn.closest('tr').querySelector('td:nth-child(2)');
-      const currentVal = td.textContent.trim();
-      const newVal = prompt(`Edit ${fieldName}:`, currentVal);
-      if (newVal !== null && newVal.trim()) td.textContent = newVal.trim();
-    }
-  </script>
 </body>
 </html>

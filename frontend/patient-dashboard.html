@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinMatch AI — Patient Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- PATIENT NAV -->
+  <nav class="patient-nav">
+    <div class="patient-nav-inner">
+      <div style="display:flex; align-items:center; gap:24px;">
+        <button class="back-link" onclick="handleBackClick()" style="margin-bottom:0;">← Back</button>
+        <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
+        <div class="dash-links" style="display:flex;gap:16px;margin-left:16px;">
+          <a href="patient-dashboard.html" class="active" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">Dashboard</a>
+          <a href="patient-method.html" style="font-size:13px;color:var(--muted);text-decoration:none;">New Match</a>
+          <a href="patient-results.html" style="font-size:13px;color:var(--muted);text-decoration:none;">My Results</a>
+        </div>
+      </div>
+      <div class="dash-right">
+        <div class="nav-greeting">
+          <span>👋</span>
+          <span>Welcome, <strong id="navUserDisplay">Patient</strong></span>
+        </div>
+        <div class="nav-profile-wrap">
+          <button class="nav-profile-btn" id="navProfileBtn" title="Profile" onclick="toggleProfileMenu(event)">
+            <span id="navProfileInitials">👤</span>
+          </button>
+          <div class="nav-profile-dropdown" id="navProfileDropdown">
+            <button type="button" onclick="logout()">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div style="max-width:1100px; margin:0 auto; padding:36px 32px;">
+
+    <h1 style="font-size:26px; margin-bottom:4px;" id="welcomeHeading">My Dashboard</h1>
+    <p class="text-muted page-subtitle">Track your clinical trial enquiries and matches</p>
+
+    <!-- STATS -->
+    <div class="dash-stats" id="patientStats">
+      <div class="stat-card"><div class="stat-val text-teal" id="pstat-matches">0</div><div class="stat-lbl">Matched Trials</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--warning);" id="pstat-pending">0</div><div class="stat-lbl">Pending Inquiries</div></div>
+      <div class="stat-card"><div class="stat-val text-success" id="pstat-accepted">0</div><div class="stat-lbl">Accepted</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--error);" id="pstat-declined">0</div><div class="stat-lbl">Declined</div></div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <a href="patient-method.html" class="btn btn-primary btn-sm">🔍 Find New Trials</a>
+      <a href="patient-results.html" class="btn btn-ghost btn-sm">📋 View Match Results</a>
+    </div>
+
+    <!-- INQUIRIES LIST -->
+    <div style="margin-top:32px;">
+      <h2 style="font-size:20px; margin-bottom:16px;">My Enquiries <span class="pill pill-teal" id="dashInquiryCount" style="font-size:12px;">0</span></h2>
+
+      <div id="dashInquiriesContainer">
+        <!-- Populated dynamically -->
+        <div style="text-align:center; padding:40px 20px;">
+          <div class="spin" style="font-size:36px; display:inline-block;">⏳</div>
+          <div style="font-size:14px; margin-top:12px; color:var(--muted);">Loading your enquiries...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

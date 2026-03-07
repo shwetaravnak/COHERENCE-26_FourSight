@@ -48,16 +48,40 @@ def extract_from_file(file_path: str) -> dict:
             "message": f"Unsupported file type: {ext}"
         }
 
-    if not text:
+    if not text or len(text.strip()) < 10:
         return {
             "error":   True,
-            "message": "Could not extract text from file"
+            "message": "Could not extract text from file. The image may be blurry, too dark, or not a valid medical report. Please upload a clearer image."
         }
 
     # ── PARSE EXTRACTED TEXT ─────────────────────────
     fields = parse_medical_text(text)
     fields["raw_text"] = text
     fields["error"]    = False
+
+    # ── QUALITY CHECK ────────────────────────────────
+    # Count how many fields were actually extracted
+    extracted_count = 0
+    total_fields = 6  # age, gender, diagnoses, medications, lab_values, location
+    if fields.get("age") is not None: extracted_count += 1
+    if fields.get("gender") is not None: extracted_count += 1
+    if fields.get("diagnoses") and len(fields["diagnoses"]) > 0: extracted_count += 1
+    if fields.get("medications") and len(fields["medications"]) > 0: extracted_count += 1
+    if fields.get("lab_values") and len(fields["lab_values"]) > 0: extracted_count += 1
+    if fields.get("location_city") is not None: extracted_count += 1
+
+    quality_score = round(extracted_count / total_fields, 2)
+    fields["quality_score"] = quality_score
+    fields["fields_extracted"] = extracted_count
+    fields["fields_total"] = total_fields
+
+    # If very few fields extracted, warn about low quality
+    if extracted_count <= 1:
+        fields["quality_warning"] = "Very few medical details could be read from this report. The image may be unclear or not a medical document. Please try uploading a clearer image or fill in the form manually."
+    elif extracted_count <= 3:
+        fields["quality_warning"] = "Some fields could not be extracted. Please review and fill in any missing information below."
+    else:
+        fields["quality_warning"] = None
 
     return fields
 

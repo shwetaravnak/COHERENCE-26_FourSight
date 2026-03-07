@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClinMatch AI — Your Medical Profile</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
   <!-- PATIENT NAV -->
@@ -58,95 +60,146 @@
     <div class="card container-sm" style="max-width:680px;">
 
       <h2 style="font-size:26px; margin-bottom:4px;">Your Medical Profile</h2>
-      <p class="text-muted" style="font-size:13px; margin-bottom:28px;">This information is used only for trial matching</p>
+      <p class="text-muted" style="font-size:13px; margin-bottom:28px;">This information is used only for trial matching
+      </p>
 
       <!-- SECTION A: Personal Details -->
       <div style="padding-top:0; margin-bottom:28px;">
-        <div class="section-label">Personal Details</div>
+        <div class="section-label">Personal Details <span style="color:var(--error);font-size:12px;">* All fields
+            required</span></div>
         <div class="grid-2" style="margin-bottom:16px;">
           <div class="form-group" style="margin-bottom:0;">
-            <label>Age</label>
-            <input type="number" class="input-field" placeholder="e.g. 45" min="1" max="120">
+            <label>Age <span style="color:var(--error);">*</span></label>
+            <input type="number" class="input-field" id="ageInput" placeholder="e.g. 45" min="1" max="120" required>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>Gender</label>
-            <div class="radio-pills">
-              <div class="radio-pill selected" onclick="selectPill(this)">M</div>
+            <label>Gender <span style="color:var(--error);">*</span></label>
+            <div class="radio-pills" id="genderPills">
+              <div class="radio-pill" onclick="selectPill(this)">M</div>
               <div class="radio-pill" onclick="selectPill(this)">F</div>
               <div class="radio-pill" onclick="selectPill(this)">Other</div>
             </div>
           </div>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label>City</label>
-          <select class="input-field">
-            <option>Mumbai</option>
-            <option>Delhi</option>
-            <option>Pune</option>
-            <option>Bangalore</option>
-            <option>Chennai</option>
-            <option>Hyderabad</option>
-            <option>Kolkata</option>
-            <option>Ahmedabad</option>
+
+        <!-- Height + Weight → auto BMI -->
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Height <span style="color:var(--error);">*</span></label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" id="heightInput" placeholder="e.g. 170" min="50" max="250"
+                step="1" style="padding-right:36px;" required oninput="autoCalcBMI()">
+              <span class="input-unit">cm</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Weight <span style="color:var(--error);">*</span></label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" id="weightInput" placeholder="e.g. 72" min="10" max="300"
+                step="0.1" style="padding-right:30px;" required oninput="autoCalcBMI()">
+              <span class="input-unit">kg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>City <span style="color:var(--error);">*</span></label>
+          <select class="input-field" id="citySelect" required>
+            <option value="">— Select City —</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Pune">Pune</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Kolkata">Kolkata</option>
+            <option value="Ahmedabad">Ahmedabad</option>
           </select>
         </div>
       </div>
 
       <!-- SECTION B: Medical Information -->
       <div style="border-top:1px solid var(--border); padding-top:24px; margin-bottom:28px;">
-        <div class="section-label">Medical Information</div>
+        <div class="section-label">Medical Information <span style="color:var(--error);font-size:12px;">*
+            Required</span></div>
         <div class="form-group">
-          <label>Primary Diagnosis</label>
-          <select class="input-field">
-            <option>Type 2 Diabetes</option>
-            <option>Hypertension</option>
-            <option>Breast Cancer</option>
-            <option>COPD</option>
-            <option>Rheumatoid Arthritis</option>
-            <option>Depression</option>
-            <option>Asthma</option>
-            <option>CKD</option>
-            <option>Parkinson's</option>
-            <option>Lupus</option>
+          <label>Primary Diagnosis <span style="color:var(--error);">*</span></label>
+          <select class="input-field" id="diagSelect" required>
+            <option value="">— Select Diagnosis —</option>
+            <option value="Type 2 Diabetes">Type 2 Diabetes</option>
+            <option value="Hypertension">Hypertension</option>
+            <option value="Breast Cancer">Breast Cancer</option>
+            <option value="COPD">COPD</option>
+            <option value="Rheumatoid Arthritis">Rheumatoid Arthritis</option>
+            <option value="Depression">Depression</option>
+            <option value="Asthma">Asthma</option>
+            <option value="CKD">CKD</option>
+            <option value="Parkinson's">Parkinson's</option>
+            <option value="Lupus">Lupus</option>
           </select>
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label>Medications</label>
           <div class="chip-input" id="medChips">
-            <div class="chip">Metformin <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
-            <div class="chip">Lisinopril <span class="chip-remove" onclick="this.parentElement.remove()">×</span></div>
             <button type="button" class="add-chip" onclick="addChip(this, 'medication')">+ Add Medication</button>
           </div>
+          <div class="input-helper" style="color:var(--muted);">Add at least one medication</div>
         </div>
       </div>
 
       <!-- SECTION C: Lab Values -->
       <div style="border-top:1px solid var(--border); padding-top:24px; margin-bottom:28px;">
-        <div class="section-label">Lab Values</div>
-        <div class="grid-3">
+        <div class="section-label">Lab Values <span style="color:var(--error);font-size:12px;">* Required</span></div>
+        <div class="grid-3" style="margin-bottom:16px;">
           <div class="form-group" style="margin-bottom:0;">
-            <label>HbA1c</label>
+            <label>HbA1c <span style="color:var(--error);">*</span></label>
             <div class="input-with-unit">
-              <input type="number" class="input-field" placeholder="8.2" step="0.1" style="padding-right:30px;">
+              <input type="number" class="input-field" id="hba1cInput" placeholder="e.g. 8.2" step="0.1"
+                style="padding-right:30px;" required>
               <span class="input-unit">%</span>
             </div>
             <div class="input-helper">Normal: 4.0–5.6</div>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>BMI</label>
+            <label>BMI (auto-calculated)</label>
             <div class="input-with-unit">
-              <input type="number" class="input-field" placeholder="27.4" step="0.1" style="padding-right:52px;">
+              <input type="number" class="input-field" id="bmiInput" placeholder="—" step="0.1"
+                style="padding-right:52px; background:var(--surface); color:var(--muted);" readonly>
               <span class="input-unit">kg/m²</span>
             </div>
-            <div class="input-helper">Normal: 18.5–24.9</div>
+            <div class="input-helper">From height &amp; weight</div>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>Creatinine</label>
+            <label>Creatinine <span style="color:var(--error);">*</span></label>
             <div class="input-with-unit">
-              <input type="number" class="input-field" placeholder="0.9" step="0.1" style="padding-right:52px;">
+              <input type="number" class="input-field" id="creatinineInput" placeholder="e.g. 0.9" step="0.1"
+                style="padding-right:52px;" required>
               <span class="input-unit">mg/dL</span>
             </div>
             <div class="input-helper">Normal: 0.7–1.2</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Blood Pressure <span style="color:var(--error);">*</span></label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="number" class="input-field" id="bpSysInput" placeholder="120" min="60" max="250"
+                style="width:80px;" required>
+              <span style="color:var(--muted);font-size:16px;font-weight:700;">/</span>
+              <input type="number" class="input-field" id="bpDiaInput" placeholder="80" min="30" max="150"
+                style="width:80px;" required>
+              <span style="color:var(--muted);font-size:12px;">mmHg</span>
+            </div>
+            <div class="input-helper">Normal: 120/80</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Hemoglobin <span style="color:var(--error);">*</span></label>
+            <div class="input-with-unit">
+              <input type="number" class="input-field" id="hemoglobinInput" placeholder="e.g. 13.5" step="0.1"
+                style="padding-right:46px;" required>
+              <span class="input-unit">g/dL</span>
+            </div>
+            <div class="input-helper">Normal: M 13.5–17.5 · F 12.0–16.0</div>
           </div>
         </div>
       </div>
@@ -155,12 +208,12 @@
       <div style="border-top:1px solid var(--border); padding-top:24px;">
         <div class="section-label">Medical History</div>
         <div class="checkbox-grid">
-          <label class="checkbox-item"><input type="checkbox" checked> No prior chemotherapy</label>
-          <label class="checkbox-item"><input type="checkbox" checked> No cardiovascular disease</label>
-          <label class="checkbox-item"><input type="checkbox">          No insulin therapy</label>
-          <label class="checkbox-item"><input type="checkbox" checked> No renal impairment</label>
-          <label class="checkbox-item"><input type="checkbox" checked> No pregnancy</label>
-          <label class="checkbox-item"><input type="checkbox" checked> Non-smoker</label>
+          <label class="checkbox-item"><input type="checkbox"> No prior chemotherapy</label>
+          <label class="checkbox-item"><input type="checkbox"> No cardiovascular disease</label>
+          <label class="checkbox-item"><input type="checkbox"> No insulin therapy</label>
+          <label class="checkbox-item"><input type="checkbox"> No renal impairment</label>
+          <label class="checkbox-item"><input type="checkbox"> No pregnancy</label>
+          <label class="checkbox-item"><input type="checkbox"> Non-smoker</label>
         </div>
       </div>
 
@@ -175,4 +228,5 @@
 
   <script src="js/main.js"></script>
 </body>
+
 </html>

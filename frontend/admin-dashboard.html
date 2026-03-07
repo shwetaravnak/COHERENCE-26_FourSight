@@ -16,10 +16,9 @@
         <div class="lp-logo" onclick="goHome()" style="cursor:pointer;">ClinMatch AI</div>
         <div class="dash-links">
           <a href="admin-dashboard.html" class="active">Dashboard</a>
-          <a href="#">Users</a>
+          <a href="admin-researchers.html">Researchers</a>
           <a href="admin-trials.html">Trials</a>
           <a href="admin-reports.html">Reports</a>
-          <a href="#">Logs</a>
         </div>
       </div>
       <div class="dash-right">
@@ -38,15 +37,15 @@
 
   <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
 
-    <h1 style="font-size:26px; margin-bottom:4px;">Admin Dashboard</h1>
+    <h1 style="font-size:26px; margin-bottom:4px;" id="welcomeHeading">Admin Dashboard</h1>
     <p class="text-muted page-subtitle">Platform Overview — ClinMatch AI</p>
 
     <!-- STATS -->
     <div class="dash-stats">
-      <div class="stat-card"><div class="stat-val">142</div><div class="stat-lbl">Total Patients</div><div class="trend up">↑ +12 today</div></div>
-      <div class="stat-card"><div class="stat-val text-teal">18</div><div class="stat-lbl">Researchers</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:#a78bfa;">15</div><div class="stat-lbl">Clinical Trials</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--warning);">47</div><div class="stat-lbl">Total Inquiries</div><div class="trend up">↑ +3 today</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-patients">—</div><div class="stat-lbl">Total Patients</div></div>
+      <div class="stat-card"><div class="stat-val text-teal" id="stat-researchers">—</div><div class="stat-lbl">Researchers</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#a78bfa;" id="stat-trials">—</div><div class="stat-lbl">Clinical Trials</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--warning);" id="stat-inquiries">—</div><div class="stat-lbl">Total Inquiries</div></div>
     </div>
 
     <!-- QUICK ACTIONS -->
