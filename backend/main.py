@@ -292,6 +292,16 @@ def get_trial(trial_id: str, db: Session = Depends(get_db)):
         "exclusion_text": trial.exclusion_text
     }
 
+# ── DEACTIVATE TRIAL ─────────────────────────────────
+@app.patch("/trials/{trial_id}/deactivate")
+def deactivate_trial(trial_id: str, db: Session = Depends(get_db)):
+    trial = db.query(Trial).filter(Trial.trial_id == trial_id).first()
+    if not trial:
+        raise HTTPException(status_code=404, detail="Trial not found")
+    trial.is_active = False
+    db.commit()
+    return {"message": "Trial deactivated"}
+
 
 # ── ADD NEW TRIAL (admin) ────────────────────────────
 @app.post("/trials/add")
@@ -326,13 +336,24 @@ def add_trial(trial_data: dict, db: Session = Depends(get_db)):
 # PATIENT ENDPOINTS
 # ════════════════════════════════════════════════════
 
-# ── SUBMIT FORM ──────────────────────────────────────
+# ── GET PATIENT BY USER ID (session restore) ─────────
+@app.get("/patient/by-user/{user_id}")
+def get_patient_by_user(user_id: str, db: Session = Depends(get_db)):
+    patient = db.query(Patient).filter(
+        Patient.user_id == user_id
+    ).first()
+    if not patient:
+        return {"patient_hash": None}
+    return {"patient_hash": patient.patient_hash}
+
+# ── SUBMIT FORM (upsert by user_id) ──────────────────
 @app.post("/patient/submit-form")
 def submit_patient_form(
     req: PatientFormRequest,
     db: Session = Depends(get_db)
 ):
-    # anonymize and prepare data
+    import json as _json
+
     form_data = {
         "age":             req.age,
         "gender":          req.gender,
@@ -344,22 +365,47 @@ def submit_patient_form(
         "location_state":  req.location_state
     }
 
-    patient_data = prepare_patient_for_db(req.user_id, form_data)
+    # ── UPSERT: if this user already has a patient row, UPDATE it
+    existing = db.query(Patient).filter(
+        Patient.user_id == req.user_id
+    ).first()
 
-    # save to database
-    patient = Patient(**patient_data)
-    db.add(patient)
-    db.commit()
+    if existing:
+        # Update fields in-place, keep the same patient_hash
+        existing.age             = req.age
+        existing.gender          = req.gender
+        existing.diagnoses       = _json.dumps(req.diagnoses)
+        existing.medications     = _json.dumps(req.medications)
+        existing.lab_values      = _json.dumps(req.lab_values)
+        existing.medical_history = _json.dumps(req.medical_history)
+        existing.location_city   = req.location_city
+        existing.location_state  = req.location_state
+        db.commit()
+        patient_hash = existing.patient_hash
 
-    # run matching immediately
-    results = run_matching(
-        patient_data["patient_hash"], db
-    )
+        # Clear stale match results so we re-run with fresh data
+        db.query(MatchResult).filter(
+            MatchResult.patient_hash == patient_hash
+        ).delete()
+        db.commit()
+    else:
+        # New patient — create with a fresh hash
+        patient_data = prepare_patient_for_db(req.user_id, form_data)
+        patient_hash = patient_data["patient_hash"]
+        patient = Patient(**patient_data)
+        db.add(patient)
+        db.commit()
+
+    # Run matching against all active trials
+    results = run_matching(patient_hash, db)
+
+    # Count only truly eligible matches for the toast
+    eligible_count = sum(1 for r in results if r.is_eligible)
 
     return {
-        "message":      "Patient data saved",
-        "patient_hash": patient_data["patient_hash"],
-        "matches_found": len(results)
+        "message":       "Patient data saved",
+        "patient_hash":  patient_hash,
+        "matches_found": eligible_count
     }
 
 
@@ -407,11 +453,9 @@ def get_patient_matches(
         MatchResult.final_score.desc()
     ).all()
 
+    # Return empty list instead of 404 — frontend handles empty state gracefully
     if not matches:
-        raise HTTPException(
-            status_code=404,
-            detail="No matches found for this patient"
-        )
+        return []
 
     result = []
     for m in matches:
@@ -799,8 +843,72 @@ def get_matched_patients(
 
 
 # ════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════
 # ADMIN ENDPOINTS
 # ════════════════════════════════════════════════════
+
+@app.get("/admin/logs")
+def get_admin_logs(db: Session = Depends(get_db)):
+    logs = []
+    
+    # User Signups
+    users = db.query(User).all()
+    for u in users:
+        role_label = "Researcher" if u.role == "researcher" else ("Patient" if u.role == "patient" else "Admin")
+        logs.append({
+            "type": "user_signup",
+            "message": f"New {role_label} signup: {u.full_name} ({u.email})",
+            "timestamp": u.created_at,
+            "status": "info"
+        })
+        
+    # Patient Forms Submitted
+    patients = db.query(Patient).all()
+    for p in patients:
+        u = db.query(User).filter(User.user_id == p.user_id).first()
+        name = u.full_name if u else "Unknown Patient"
+        logs.append({
+            "type": "patient_health_update",
+            "message": f"Patient data updated: {name} (Hash: {p.patient_hash[:6]}...)",
+            "timestamp": p.created_at,
+            "status": "success"
+        })
+
+    # Inquiries
+    inquiries = db.query(Inquiry).all()
+    for inq in inquiries:
+        # Inquiry created
+        logs.append({
+            "type": "inquiry_sent",
+            "message": f"Inquiry sent for Trial {inq.trial_id} by Patient Hash {inq.patient_hash[:6]}...",
+            "timestamp": inq.created_at,
+            "status": "warning"
+        })
+        # Inquiry status updated (accepted/declined)
+        if inq.status != "pending" and inq.updated_at:
+            icon = "✅ Accepted" if inq.status == "accepted" else "❌ Declined"
+            status_color = "success" if inq.status == "accepted" else "error"
+            logs.append({
+                "type": "inquiry_updated",
+                "message": f"Inquiry {icon} for Trial {inq.trial_id}",
+                "timestamp": inq.updated_at,
+                "status": status_color
+            })
+            
+    # Sort logs descending by timestamp
+    logs.sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    # Format timestamps
+    for log in logs:
+        if isinstance(log["timestamp"], str):
+            log["timestamp_str"] = log["timestamp"]
+        elif log["timestamp"]:
+            log["timestamp_str"] = log["timestamp"].strftime("%b %d, %Y %I:%M %p")
+        else:
+            log["timestamp_str"] = "Unknown date"
+        
+    return logs
+
 
 # ── GET ALL USERS ────────────────────────────────────
 @app.get("/admin/users")

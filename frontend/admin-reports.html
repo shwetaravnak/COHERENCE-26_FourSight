@@ -19,6 +19,7 @@
           <a href="admin-researchers.html">Researchers</a>
           <a href="admin-trials.html">Trials</a>
           <a href="admin-reports.html" class="active">Reports</a>
+          <a href="admin-logs.html">Activity Logs</a>
         </div>
       </div>
       <div class="dash-right">
@@ -50,24 +51,24 @@
     <!-- KPI STRIP -->
     <div class="kpi-strip">
       <div class="kpi-card">
-        <div class="kpi-val text-teal">287</div>
+        <div class="kpi-val text-teal" id="rep-total-matches">...</div>
         <div class="kpi-lbl">Total Matches</div>
-        <div class="kpi-trend trend up">↑ +14% vs last week</div>
+        <div class="kpi-trend trend up">Live</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-val text-success">89%</div>
         <div class="kpi-lbl">Avg Match Score</div>
-        <div class="kpi-trend trend up">↑ +2%</div>
+        <div class="kpi-trend trend up">Live</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-val" style="color:var(--warning);">67%</div>
+        <div class="kpi-val" style="color:var(--warning);" id="rep-accept-rate">...</div>
         <div class="kpi-lbl">Inquiry Accept Rate</div>
-        <div class="kpi-trend trend down">↓ -3%</div>
+        <div class="kpi-trend trend down">Live</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-val">142</div>
+        <div class="kpi-val" id="rep-active-patients">...</div>
         <div class="kpi-lbl">Active Patients</div>
-        <div class="kpi-trend trend up">↑ +12 today</div>
+        <div class="kpi-trend trend up">Live</div>
       </div>
     </div>
 
@@ -98,13 +99,7 @@
       <!-- Matches Bar -->
       <div class="chart-card">
         <h3>Matches per Trial</h3>
-        <div class="bar-chart">
-          <div class="bar-row"><span class="bar-label">T001</span><div class="bar-track"><div class="bar-fill" style="width:100%;">12</div></div></div>
-          <div class="bar-row"><span class="bar-label">T002</span><div class="bar-track"><div class="bar-fill" style="width:75%;">9</div></div></div>
-          <div class="bar-row"><span class="bar-label">T003</span><div class="bar-track"><div class="bar-fill" style="width:58%;">7</div></div></div>
-          <div class="bar-row"><span class="bar-label">T005</span><div class="bar-track"><div class="bar-fill" style="width:42%;">5</div></div></div>
-          <div class="bar-row"><span class="bar-label">T006</span><div class="bar-track"><div class="bar-fill" style="width:33%;">4</div></div></div>
-          <div class="bar-row"><span class="bar-label">T007</span><div class="bar-track"><div class="bar-fill" style="width:25%;">3</div></div></div>
+        <div class="bar-chart" id="rep-bars">
         </div>
       </div>
 
@@ -117,15 +112,8 @@
       <div class="chart-card">
         <h3>Inquiry Status Distribution</h3>
         <div class="chart-with-legend">
-          <div class="donut" style="background:conic-gradient(
-            var(--success) 0% 42%,
-            var(--warning) 42% 77%,
-            var(--error) 77% 100%
-          );"></div>
-          <div class="chart-legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div>Accepted — 42%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--warning);"></div>Pending — 35%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--error);"></div>Declined — 23%</div>
+          <div class="donut" id="rep-donut-status"></div>
+          <div class="chart-legend" id="rep-legend-status">
           </div>
         </div>
       </div>

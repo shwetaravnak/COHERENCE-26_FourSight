@@ -19,6 +19,7 @@
           <a href="#">Users</a>
           <a href="admin-trials.html">Trials</a>
           <a href="admin-reports.html">Reports</a>
+          <a href="admin-logs.html">Activity Logs</a>
           <a href="#">Logs</a>
         </div>
       </div>
@@ -49,13 +50,13 @@
 
       <div class="form-group">
         <label>Trial Title</label>
-        <input type="text" class="input-field" placeholder="e.g. Diabetes Glucose Control Study Phase 3">
+        <input type="text" class="input-field" placeholder="e.g. Diabetes Glucose Control Study Phase 3" id="addTrialTitle">
       </div>
 
       <div class="grid-2" style="margin-bottom:16px;">
         <div class="form-group" style="margin-bottom:0;">
           <label>Phase</label>
-          <select class="input-field">
+          <select class="input-field" id="addTrialPhase">
             <option>Phase 1</option>
             <option>Phase 2</option>
             <option selected>Phase 3</option>
@@ -64,7 +65,7 @@
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label>Disease Area</label>
-          <select class="input-field">
+          <select class="input-field" id="addTrialDisease">
             <option>Endocrinology</option>
             <option>Cardiology</option>
             <option>Oncology</option>
@@ -79,7 +80,7 @@
 
       <div class="form-group">
         <label>Sponsor Name</label>
-        <input type="text" class="input-field" placeholder="e.g. PharmaCo Research">
+        <input type="text" class="input-field" placeholder="e.g. PharmaCo Research" id="addTrialSponsor">
       </div>
 
       <div class="form-group" style="margin-bottom:28px;">
@@ -101,13 +102,13 @@
 
         <div class="form-group">
           <label>Inclusion Criteria</label>
-          <textarea class="input-field" rows="5"
+          <textarea class="input-field" rows="5" id="addTrialInclusion"
             placeholder="e.g. Patients aged 30 to 65 years with Type 2 Diabetes, HbA1c greater than 7.5, BMI between 22 and 35, currently on Metformin therapy..."></textarea>
         </div>
 
         <div class="form-group" style="margin-bottom:20px;">
           <label>Exclusion Criteria</label>
-          <textarea class="input-field" rows="5"
+          <textarea class="input-field" rows="5" id="addTrialExclusion"
             placeholder="e.g. No prior cardiovascular disease, no pregnancy, creatinine above 1.5, no insulin therapy in past 6 months..."></textarea>
         </div>
 
@@ -134,7 +135,7 @@
       <!-- FOOTER BUTTONS -->
       <div class="form-footer">
         <a href="admin-trials.html" class="btn btn-ghost">Cancel</a>
-        <a href="admin-trials.html" class="btn btn-primary">Save Trial</a>
+        <button class="btn btn-primary" onclick="submitNewTrial(event)">Save Trial</button>
       </div>
 
     </div>

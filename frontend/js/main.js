@@ -12,7 +12,7 @@ const API = (typeof window !== 'undefined' && window.location.port === '8000')
 /* ══════════════════════════════════════════════════════════════
    SESSION  (localStorage-backed so it survives page navigation)
    ══════════════════════════════════════════════════════════════ */
-const _sessionKeys = ['user_id','role','full_name','patient_hash','ocr_data'];
+const _sessionKeys = ['user_id', 'role', 'full_name', 'patient_hash', 'ocr_data'];
 
 window._session = new Proxy({}, {
   get(_, key) {
@@ -72,17 +72,24 @@ async function apiLogin(email, password, role) {
     method: 'POST',
     body: JSON.stringify({ email, password, role: role.toLowerCase() })
   });
-  window._session.user_id   = data.user_id;
-  window._session.role      = data.role;
+  window._session.user_id = data.user_id;
+  window._session.role = data.role;
   window._session.full_name = data.full_name;
+  // Restore patient_hash from server so dashboard/results work immediately
+  if (data.role === 'patient') {
+    try {
+      const p = await apiFetch(`/patient/by-user/${data.user_id}`);
+      if (p.patient_hash) window._session.patient_hash = p.patient_hash;
+    } catch (_) { }
+  }
   return data;
 }
 
 /* ── TRIALS ──────────────────────────────────────────────────── */
 async function apiGetTrials(filters = {}) {
   const p = new URLSearchParams();
-  if (filters.location)     p.append('location',     filters.location);
-  if (filters.phase)        p.append('phase',        filters.phase);
+  if (filters.location) p.append('location', filters.location);
+  if (filters.phase) p.append('phase', filters.phase);
   if (filters.disease_area) p.append('disease_area', filters.disease_area);
   return apiFetch(`/trials?${p}`);
 }
@@ -123,6 +130,19 @@ async function apiGetExplanation(patient_hash, trial_id) {
   return apiFetch(`/explain/${patient_hash}/${trial_id}`);
 }
 
+/* Restore patient_hash from server (survives page refreshes & back navigation) */
+async function apiRestorePatientHash() {
+  const userId = window._session.user_id;
+  const role = window._session.role;
+  if (!userId || role !== 'patient') return;
+  try {
+    const data = await apiFetch(`/patient/by-user/${userId}`);
+    if (data.patient_hash) {
+      window._session.patient_hash = data.patient_hash;
+    }
+  } catch (_) { /* silently ignore — patient may not have submitted yet */ }
+}
+
 /* ── INQUIRIES ───────────────────────────────────────────────── */
 async function apiSendInquiry(patient_hash, trial_id, patient_note = '') {
   return apiFetch('/inquiry/send', {
@@ -157,12 +177,21 @@ async function apiGetMatchedPatients(trial_id) {
 }
 
 /* ── ADMIN ───────────────────────────────────────────────────── */
-async function apiGetStats()    { return apiFetch('/admin/stats'); }
+async function apiAddTrial(data) {
+  return apiFetch('/trials/add', {
+    method: 'POST', body: JSON.stringify(data)
+  });
+}
+async function apiDeactivateTrial(trial_id) {
+  return apiFetch(`/trials/${trial_id}/deactivate`, { method: 'PATCH' });
+}
+async function apiGetStats() { return apiFetch('/admin/stats'); }
 async function apiGetAllUsers() { return apiFetch('/admin/users'); }
+async function apiGetAdminLogs() { return apiFetch('/admin/logs'); }
 
 /* ── LOGOUT ──────────────────────────────────────────────────── */
 function logout() {
-  ['cm_user_id','cm_role','cm_full_name','cm_patient_hash','cm_ocr_data'].forEach(k => localStorage.removeItem(k));
+  ['cm_user_id', 'cm_role', 'cm_full_name', 'cm_patient_hash', 'cm_ocr_data'].forEach(k => localStorage.removeItem(k));
   window.location.href = 'login.html';
 }
 
@@ -197,13 +226,13 @@ function checkStrength(input) {
   if (!fill) return;
   const v = input.value;
   let s = 0;
-  if (v.length >= 8)          s++;
-  if (/[A-Z]/.test(v))        s++;
-  if (/[0-9]/.test(v))        s++;
+  if (v.length >= 8) s++;
+  if (/[A-Z]/.test(v)) s++;
+  if (/[0-9]/.test(v)) s++;
   if (/[^A-Za-z0-9]/.test(v)) s++;
-  const colors = ['', '#f87171','#fbbf24','#34d399','#00e5cc'];
-  const widths  = ['0%','25%','50%','75%','100%'];
-  fill.style.width      = widths[s];
+  const colors = ['', '#f87171', '#fbbf24', '#34d399', '#00e5cc'];
+  const widths = ['0%', '25%', '50%', '75%', '100%'];
+  fill.style.width = widths[s];
   fill.style.background = colors[s];
 }
 
@@ -245,17 +274,17 @@ function addChip(btn, label = 'Item') {
 
 function getChips(containerId) {
   return [...document.querySelectorAll(`#${containerId} .chip`)]
-    .map(c => c.textContent.replace('×','').trim())
+    .map(c => c.textContent.replace('×', '').trim())
     .filter(Boolean);
 }
 
 /* ── Upload ──────────────────────────────────────────────────── */
 function simulateUpload(redirectFn) {
-  const zone   = document.getElementById('uploadZone');
+  const zone = document.getElementById('uploadZone');
   const loader = document.getElementById('uploadLoader');
-  const bar    = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadProgress');
   if (!zone || !loader || !bar) return;
-  zone.style.display   = 'none';
+  zone.style.display = 'none';
   loader.style.display = 'block';
   let pct = 0;
   const iv = setInterval(() => {
@@ -297,11 +326,11 @@ function showToast(msg, type = 'success') {
     `;
     document.body.appendChild(toast);
   }
-  const colors = { success:'#34d399', error:'#f87171', info:'#00e5cc' };
+  const colors = { success: '#34d399', error: '#f87171', info: '#00e5cc' };
   toast.style.background = colors[type] || colors.info;
-  toast.style.color      = '#0f172a';
-  toast.style.opacity    = '1';
-  toast.textContent      = msg;
+  toast.style.color = '#0f172a';
+  toast.style.opacity = '1';
+  toast.textContent = msg;
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
 }
@@ -325,39 +354,39 @@ function scoreLabel(pct) {
    ══════════════════════════════════════════════════════════════ */
 async function loginRedirect() {
   const emailEl = document.querySelector('input[type="email"]');
-  const passEl  = document.querySelector('input[type="password"]');
-  const btn     = document.getElementById('loginBtn');
+  const passEl = document.querySelector('input[type="password"]');
+  const btn = document.getElementById('loginBtn');
 
   if (!emailEl || !passEl) {
-    if      (_currentRole === 'Researcher') window.location.href = 'researcher-dashboard.html';
-    else if (_currentRole === 'Admin')      window.location.href = 'admin-dashboard.html';
-    else                                    window.location.href = 'patient-method.html';
+    if (_currentRole === 'Researcher') window.location.href = 'researcher-dashboard.html';
+    else if (_currentRole === 'Admin') window.location.href = 'admin-dashboard.html';
+    else window.location.href = 'patient-method.html';
     return;
   }
 
-  const email    = emailEl.value.trim();
+  const email = emailEl.value.trim();
   const password = passEl.value;
 
   if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
 
   btn.textContent = 'Logging in...';
-  btn.disabled    = true;
+  btn.disabled = true;
 
   // clear any previous session before new login
-  ['cm_user_id','cm_role','cm_full_name','cm_patient_hash'].forEach(k => localStorage.removeItem(k));
+  ['cm_user_id', 'cm_role', 'cm_full_name', 'cm_patient_hash'].forEach(k => localStorage.removeItem(k));
 
   try {
     const data = await apiLogin(email, password, _currentRole);
     showToast(`Welcome back, ${data.full_name}!`);
     setTimeout(() => {
-      if      (data.role === 'researcher') window.location.href = 'researcher-dashboard.html';
-      else if (data.role === 'admin')      window.location.href = 'admin-dashboard.html';
-      else                                 window.location.href = 'patient-method.html';
+      if (data.role === 'researcher') window.location.href = 'researcher-dashboard.html';
+      else if (data.role === 'admin') window.location.href = 'admin-dashboard.html';
+      else window.location.href = 'patient-method.html';
     }, 800);
   } catch (e) {
     showToast(e.message, 'error');
     btn.textContent = 'Login as ' + _currentRole;
-    btn.disabled    = false;
+    btn.disabled = false;
   }
 }
 
@@ -366,25 +395,25 @@ async function loginRedirect() {
    PAGE: REGISTER
    ══════════════════════════════════════════════════════════════ */
 async function handleRegister() {
-  const nameEl   = document.querySelector('input[placeholder="Your full name"]');
-  const emailEl  = document.querySelector('input[type="email"]');
-  const passEls  = document.querySelectorAll('input[type="password"]');
-  const instEl   = document.querySelector('input[placeholder*="Institution"]');
+  const nameEl = document.querySelector('input[placeholder="Your full name"]');
+  const emailEl = document.querySelector('input[type="email"]');
+  const passEls = document.querySelectorAll('input[type="password"]');
+  const instEl = document.querySelector('input[placeholder*="Institution"]');
 
-  const full_name   = nameEl?.value.trim();
-  const email       = emailEl?.value.trim();
-  const password    = passEls[0]?.value;
-  const confirm     = passEls[1]?.value;
+  const full_name = nameEl?.value.trim();
+  const email = emailEl?.value.trim();
+  const password = passEls[0]?.value;
+  const confirm = passEls[1]?.value;
   const institution = instEl?.value.trim() || null;
 
   if (!full_name || !email || !password) { showToast('Please fill all fields', 'error'); return; }
-  if (password !== confirm)              { showToast('Passwords do not match', 'error'); return; }
+  if (password !== confirm) { showToast('Passwords do not match', 'error'); return; }
 
   try {
     await apiRegister(email, password, full_name, _currentRole, institution);
     showToast('Account created! Redirecting to login...');
     setTimeout(() => window.location.href = 'login.html', 1200);
-  } catch(e) {
+  } catch (e) {
     showToast(e.message, 'error');
   }
 }
@@ -419,18 +448,18 @@ async function submitPatientForm() {
     return;
   }
 
-  const ageEl      = document.getElementById('ageInput');
-  const cityEl     = document.getElementById('citySelect');
-  const diagEl     = document.getElementById('diagSelect');
-  const genderEl   = document.querySelector('.radio-pill.selected');
-  const heightEl   = document.getElementById('heightInput');
-  const weightEl   = document.getElementById('weightInput');
-  const hba1cEl    = document.getElementById('hba1cInput');
-  const bmiEl      = document.getElementById('bmiInput');
-  const creatEl    = document.getElementById('creatinineInput');
-  const bpSysEl    = document.getElementById('bpSysInput');
-  const bpDiaEl    = document.getElementById('bpDiaInput');
-  const hemoEl     = document.getElementById('hemoglobinInput');
+  const ageEl = document.getElementById('ageInput');
+  const cityEl = document.getElementById('citySelect');
+  const diagEl = document.getElementById('diagSelect');
+  const genderEl = document.querySelector('.radio-pill.selected');
+  const heightEl = document.getElementById('heightInput');
+  const weightEl = document.getElementById('weightInput');
+  const hba1cEl = document.getElementById('hba1cInput');
+  const bmiEl = document.getElementById('bmiInput');
+  const creatEl = document.getElementById('creatinineInput');
+  const bpSysEl = document.getElementById('bpSysInput');
+  const bpDiaEl = document.getElementById('bpDiaInput');
+  const hemoEl = document.getElementById('hemoglobinInput');
 
   const history = [...document.querySelectorAll('.checkbox-item input:checked')]
     .map(cb => cb.closest('label').textContent.trim());
@@ -494,26 +523,26 @@ async function submitPatientForm() {
 
   // gender: M / F / Other → normalise to M or F
   const genderRaw = genderEl.textContent.trim();
-  const gender    = genderRaw === 'F' ? 'F' : 'M';
+  const gender = genderRaw === 'F' ? 'F' : 'M';
 
   const formData = {
-    user_id:         userId,
-    age:             parseInt(ageEl.value),
-    gender:          gender,
-    diagnoses:       [diagEl.value],
-    medications:     meds,
+    user_id: userId,
+    age: parseInt(ageEl.value),
+    gender: gender,
+    diagnoses: [diagEl.value],
+    medications: meds,
     lab_values: {
-      HbA1c:          parseFloat(hba1cEl.value),
-      BMI:            parseFloat(bmiEl?.value) || null,
-      creatinine:     parseFloat(creatEl.value),
+      HbA1c: parseFloat(hba1cEl.value),
+      BMI: parseFloat(bmiEl?.value) || null,
+      creatinine: parseFloat(creatEl.value),
       blood_pressure: bpSysEl.value + '/' + bpDiaEl.value,
-      hemoglobin:     parseFloat(hemoEl.value),
-      height_cm:      parseFloat(heightEl.value),
-      weight_kg:      parseFloat(weightEl.value)
+      hemoglobin: parseFloat(hemoEl.value),
+      height_cm: parseFloat(heightEl.value),
+      weight_kg: parseFloat(weightEl.value)
     },
     medical_history: history,
-    location_city:   cityEl.value,
-    location_state:  'India'
+    location_city: cityEl.value,
+    location_state: 'India'
   };
 
   // remove null lab values
@@ -521,17 +550,22 @@ async function submitPatientForm() {
     if (formData.lab_values[k] === null || formData.lab_values[k] === undefined) delete formData.lab_values[k];
   });
 
-  const btn = document.querySelector('a[href="patient-results.html"]');
-  if (btn) { btn.style.pointerEvents = 'none'; btn.textContent = 'Finding matches...'; }
+  const btn = document.getElementById('findTrialsBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Finding matches...'; }
 
   try {
     showToast('Finding your matches...', 'info');
     const result = await apiSubmitPatientForm(formData);
-    showToast(`Found ${result.matches_found} matches!`);
-    setTimeout(() => window.location.href = 'patient-results.html', 900);
-  } catch(e) {
+    const eligibleCount = result.matches_found;  // backend now sends eligible count only
+    if (eligibleCount > 0) {
+      showToast(`Found ${eligibleCount} eligible trial${eligibleCount !== 1 ? 's' : ''}!`);
+    } else {
+      showToast('Search complete — no fully eligible trials found, but partial matches may exist.', 'info');
+    }
+    setTimeout(() => window.location.href = 'patient-results.html', 1200);
+  } catch (e) {
     showToast(e.message, 'error');
-    if (btn) { btn.style.pointerEvents = ''; btn.textContent = 'Find My Trials →'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Find My Trials →'; }
   }
 }
 
@@ -540,10 +574,10 @@ async function submitPatientForm() {
    PAGE: PATIENT UPLOAD
    ══════════════════════════════════════════════════════════════ */
 async function handleFileUpload(file) {
-  const zone   = document.getElementById('uploadZone');
+  const zone = document.getElementById('uploadZone');
   const loader = document.getElementById('uploadLoader');
-  const bar    = document.getElementById('uploadProgress');
-  if (zone)   zone.style.display   = 'none';
+  const bar = document.getElementById('uploadProgress');
+  if (zone) zone.style.display = 'none';
   if (loader) loader.style.display = 'block';
 
   // animate progress bar
@@ -567,7 +601,7 @@ async function handleFileUpload(file) {
       if (extracted.fields_extracted <= 1) {
         // Very poor quality — alert and let them re-upload
         if (loader) loader.style.display = 'none';
-        if (zone)   zone.style.display = 'block';
+        if (zone) zone.style.display = 'block';
         alert('⚠️ Poor Image Quality\n\n' + alertMsg + '\n\nExtracted ' + extracted.fields_extracted + ' of ' + extracted.fields_total + ' fields.');
         showToast('Image quality too low. Please try again.', 'error');
         return;
@@ -580,10 +614,10 @@ async function handleFileUpload(file) {
     window._session.ocr_data = extracted;
     showToast('Report read successfully!');
     setTimeout(() => window.location.href = 'patient-ocr-confirm.html', 600);
-  } catch(e) {
+  } catch (e) {
     clearInterval(iv);
     if (loader) loader.style.display = 'none';
-    if (zone)   zone.style.display   = 'block';
+    if (zone) zone.style.display = 'block';
     showToast(e.message, 'error');
   }
 }
@@ -633,16 +667,16 @@ function populateOcrTable() {
   }
 
   const rows = {
-    'Age':            ocr.age,
-    'Gender':         ocr.gender,
-    'Diagnosis':      (ocr.diagnoses || []).join(', '),
-    'HbA1c':          ocr.lab_values?.HbA1c,
-    'BMI':            ocr.lab_values?.BMI,
-    'Medications':    (ocr.medications || []).join(', '),
-    'Creatinine':     ocr.lab_values?.creatinine,
+    'Age': ocr.age,
+    'Gender': ocr.gender,
+    'Diagnosis': (ocr.diagnoses || []).join(', '),
+    'HbA1c': ocr.lab_values?.HbA1c,
+    'BMI': ocr.lab_values?.BMI,
+    'Medications': (ocr.medications || []).join(', '),
+    'Creatinine': ocr.lab_values?.creatinine,
     'Blood Pressure': ocr.lab_values?.blood_pressure,
-    'Hemoglobin':     ocr.lab_values?.hemoglobin,
-    'City':           ocr.location_city
+    'Hemoglobin': ocr.lab_values?.hemoglobin,
+    'City': ocr.location_city
   };
 
   const confMap = ocr.confidence || {};
@@ -653,9 +687,9 @@ function populateOcrTable() {
 
   tbody.innerHTML = Object.entries(rows).map(([field, val]) => {
     const isEmpty = val === null || val === undefined || val === '' || val === 0;
-    const conf     = isEmpty ? 'low' : (confMap[field.toLowerCase()] || confMap['lab_values'] || 'medium');
+    const conf = isEmpty ? 'low' : (confMap[field.toLowerCase()] || confMap['lab_values'] || 'medium');
     const confColor = conf === 'high' ? 'var(--success)' : conf === 'low' ? 'var(--error)' : 'var(--warning)';
-    const confText  = conf.charAt(0).toUpperCase() + conf.slice(1);
+    const confText = conf.charAt(0).toUpperCase() + conf.slice(1);
     const rowClass = isEmpty ? ' class="low-conf"' : '';
     // For missing fields, show an editable input so patient can fill them
     const displayVal = isEmpty
@@ -704,7 +738,7 @@ function inlineEdit(btn, fieldName) {
 function updateOcrField(fieldName, value) {
   const ocr = window._session.ocr_data;
   if (!ocr) return;
-  switch(fieldName) {
+  switch (fieldName) {
     case 'Age': ocr.age = parseInt(value) || null; break;
     case 'Gender': ocr.gender = value; break;
     case 'Diagnosis': ocr.diagnoses = value.split(',').map(s => s.trim()).filter(Boolean); break;
@@ -763,23 +797,28 @@ async function confirmOcrAndSubmit() {
   }
 
   const formData = {
-    user_id:         userId,
-    age:             ocr.age,
-    gender:          ocr.gender,
-    diagnoses:       ocr.diagnoses || [],
-    medications:     ocr.medications || [],
-    lab_values:      ocr.lab_values || {},
+    user_id: userId,
+    age: ocr.age,
+    gender: ocr.gender,
+    diagnoses: ocr.diagnoses || [],
+    medications: ocr.medications || [],
+    lab_values: ocr.lab_values || {},
     medical_history: ocr.medical_history || [],
-    location_city:   ocr.location_city,
-    location_state:  'India'
+    location_city: ocr.location_city,
+    location_state: 'India'
   };
 
   try {
     showToast('Running AI matching...', 'info');
     const result = await apiSubmitPatientForm(formData);
-    showToast(`Found ${result.matches_found} matches!`);
-    setTimeout(() => window.location.href = 'patient-results.html', 900);
-  } catch(e) {
+    const eligibleCount = result.matches_found;
+    if (eligibleCount > 0) {
+      showToast(`Found ${eligibleCount} eligible trial${eligibleCount !== 1 ? 's' : ''}!`);
+    } else {
+      showToast('Search complete — see partial matches on the next page.', 'info');
+    }
+    setTimeout(() => window.location.href = 'patient-results.html', 1200);
+  } catch (e) {
     showToast(e.message, 'error');
   }
 }
@@ -807,30 +846,44 @@ async function loadPatientResults() {
 
   try {
     const matches = await apiGetMatches(patient_hash);
-    // Update header with actual match count
-    if (countText) countText.textContent = `Found ${matches.length} trial${matches.length !== 1 ? 's' : ''} matching your profile`;
+    const eligible = matches.filter(m => m.is_eligible);
+    const countLabel = eligible.length > 0
+      ? `${eligible.length} eligible trial${eligible.length !== 1 ? 's' : ''} found (${matches.length} total scored)`
+      : matches.length > 0
+        ? `${matches.length} trial${matches.length !== 1 ? 's' : ''} scored — no fully eligible matches`
+        : 'No trials scored yet';
+    if (countText) countText.textContent = countLabel;
     if (matches.length) {
-      renderMatchCards(matches);
+      renderMatchCards(patient_hash, matches);
     } else {
       if (container) container.innerHTML = '<p class="text-muted" style="padding:24px;text-align:center;">No matching trials found for your profile.</p>';
     }
     loadPatientInquiries(patient_hash);
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load matches:', e.message);
-    if (countText) countText.textContent = 'Could not load matches';
-    if (container) container.innerHTML = '<p class="text-muted" style="padding:24px;text-align:center;">Error loading matches. Please try again.</p>';
+    if (countText) countText.textContent = 'Could not load results';
+    if (container) container.innerHTML = `
+      <div style="text-align:center; padding:48px 20px;">
+        <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
+        <h3 style="font-size:18px; margin-bottom:8px;">Results Could Not Be Loaded</h3>
+        <p class="text-muted" style="font-size:14px; margin-bottom:20px;">
+          There was a problem retrieving your match results.<br>
+          Please try re-submitting your health details.
+        </p>
+        <a href="patient-form.html" class="btn btn-primary">Re-submit Health Details →</a>
+      </div>`;
   }
 }
 
-function renderMatchCards(matches) {
+function renderMatchCards(patient_hash, matches) {
   const container = document.getElementById('matchCards');
   if (!container || !matches.length) return;
 
   container.innerHTML = matches.map(m => {
-    const pct   = m.percentage;
+    const pct = m.percentage;
     const color = scoreColor(pct);
     const emoji = scoreLabel(pct);
-    const breakdown = (m.criteria_breakdown || []).slice(0,5).map(c =>
+    const breakdown = (m.criteria_breakdown || []).slice(0, 5).map(c =>
       `<span class="crit-badge ${c.status === 'PASS' ? 'crit-ok' : 'crit-fail'}">
         ${c.status === 'PASS' ? '✅' : '❌'} ${c.criterion.split(' ')[0]}
       </span>`
@@ -856,16 +909,15 @@ function renderMatchCards(matches) {
         <div class="criteria-row">${breakdown}</div>
         <div class="trial-actions">
           <button class="btn btn-ghost btn-sm"
-            onclick="openExplanationModal('${patient_hash}','${m.trial_id}','${m.title}')">
-            📋 View Explanation
-          </button>
+            onclick="openExplanationModal('${patient_hash}','${m.trial_id}','${m.title.replace(/'/g, "&#39;")}')"
+          >📋 View Explanation</button>
           ${m.is_eligible
-            ? `<button class="btn btn-primary btn-sm"
+        ? `<button class="btn btn-primary btn-sm"
                 onclick="sendInterest('${patient_hash}','${m.trial_id}')">
                 ★ I'm Interested
               </button>`
-            : `<span class="pill pill-red">Not Eligible</span>`
-          }
+        : `<span class="pill pill-red">Not Eligible</span>`
+      }
         </div>
       </div>
     </div>`;
@@ -900,17 +952,17 @@ async function openExplanationModal(patient_hash, trial_id, title) {
     // update scores
     if (exp.score_breakdown) {
       const fills = modal?.querySelectorAll('.score-row-fill');
-      const pcts  = modal?.querySelectorAll('.score-row-pct');
-      const sb    = exp.score_breakdown;
+      const pcts = modal?.querySelectorAll('.score-row-pct');
+      const sb = exp.score_breakdown;
       if (fills && pcts) {
         const vals = [sb.rule_score?.value, sb.ml_score?.value, sb.final_score?.value];
         vals.forEach((v, i) => {
-          if (fills[i]) fills[i].style.width = (v||0) + '%';
-          if (pcts[i])  pcts[i].textContent  = (v||0) + '%';
+          if (fills[i]) fills[i].style.width = (v || 0) + '%';
+          if (pcts[i]) pcts[i].textContent = (v || 0) + '%';
         });
       }
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('Explanation not available:', e.message);
   }
 }
@@ -928,7 +980,7 @@ async function sendInterest(patient_hash, trial_id) {
     });
     showSuccessModal(trialName, trial_id);
     loadPatientInquiries(patient_hash);
-  } catch(e) {
+  } catch (e) {
     showToast(e.message, 'error');
   }
 }
@@ -981,7 +1033,7 @@ function closeSuccessModal() {
 
 function spawnConfetti(container) {
   if (!container) return;
-  const colors = ['#34d399','#00e5cc','#fbbf24','#60a5fa','#a78bfa','#f87171','#fb923c'];
+  const colors = ['#34d399', '#00e5cc', '#fbbf24', '#60a5fa', '#a78bfa', '#f87171', '#fb923c'];
   for (let i = 0; i < 20; i++) {
     const p = document.createElement('div');
     p.className = 'confetti-particle';
@@ -1012,21 +1064,21 @@ async function loadPatientInquiries(patient_hash) {
 
     container.innerHTML = inquiries.map(inq => {
       const statusClass = inq.status === 'accepted' ? 'pill-green' :
-                          inq.status === 'declined'  ? 'pill-red'   : 'pill-yellow';
-      const statusIcon  = inq.status === 'accepted' ? '✅ Accepted' :
-                          inq.status === 'declined'  ? '❌ Declined' : '⏳ Pending';
+        inq.status === 'declined' ? 'pill-red' : 'pill-yellow';
+      const statusIcon = inq.status === 'accepted' ? '✅ Accepted' :
+        inq.status === 'declined' ? '❌ Declined' : '⏳ Pending';
       return `
         <div class="card">
           <h4 style="font-size:14px;margin-bottom:8px;">${inq.trial_title}</h4>
           <span class="pill ${statusClass}">${statusIcon}</span>
           ${inq.researcher_note
-            ? `<div style="background:var(--bg);border-left:2px solid var(--success);padding:8px 12px;border-radius:0 4px 4px 0;font-size:12px;color:var(--muted);margin-top:8px;font-style:italic;">
+          ? `<div style="background:var(--bg);border-left:2px solid var(--success);padding:8px 12px;border-radius:0 4px 4px 0;font-size:12px;color:var(--muted);margin-top:8px;font-style:italic;">
                 "${inq.researcher_note}"
               </div>`
-            : ''}
+          : ''}
         </div>`;
     }).join('');
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load inquiries:', e.message);
   }
 }
@@ -1037,7 +1089,7 @@ async function loadPatientInquiries(patient_hash) {
    ══════════════════════════════════════════════════════════════ */
 
 // Populate trial selector from API instead of hardcoded options
-async function populateTrialSelector() {
+async function populateTrialSelector(preselectTrialId = null) {
   const selector = document.getElementById('trialSelector');
   if (!selector) return;
 
@@ -1046,13 +1098,18 @@ async function populateTrialSelector() {
     selector.innerHTML = trials.map(t =>
       `<option value="${t.trial_id}">${t.trial_id} — ${t.title}</option>`
     ).join('');
-    // Load first trial's patients
+    // Load first trial's patients (or specified trial)
     if (trials.length > 0) {
-      loadResearcherPatients(trials[0].trial_id);
+      if (preselectTrialId && trials.some(t => t.trial_id === preselectTrialId)) {
+        selector.value = preselectTrialId;
+        loadResearcherPatients(preselectTrialId);
+      } else {
+        loadResearcherPatients(trials[0].trial_id);
+      }
     } else {
       selector.innerHTML = '<option value="">No trials available</option>';
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load trials for selector:', e.message);
   }
 }
@@ -1068,7 +1125,7 @@ async function loadResearcherPatients(trial_id) {
     const trialData = await apiFetch(`/trials/${trial_id}`);
     const titleEl = document.getElementById('trialInfoTitle');
     const pillsEl = document.getElementById('trialInfoPills');
-    const locsEl  = document.getElementById('trialInfoLocations');
+    const locsEl = document.getElementById('trialInfoLocations');
     if (titleEl) titleEl.textContent = trialData.title || trial_id;
     if (pillsEl) pillsEl.innerHTML = `
       <span class="pill pill-teal">Phase ${trialData.phase}</span>
@@ -1077,22 +1134,22 @@ async function loadResearcherPatients(trial_id) {
       <span class="pill pill-gray">${trialData.sponsor || ''}</span>
     `;
     if (locsEl) locsEl.textContent = '📍 ' + (trialData.locations || []).join(' · ');
-  } catch(_) { /* trial details not critical */ }
+  } catch (_) { /* trial details not critical */ }
 
   try {
     const patients = await apiGetMatchedPatients(trial_id);
 
     // Update trial info stats from real data
-    const matchesEl  = document.getElementById('trialInfoMatches');
+    const matchesEl = document.getElementById('trialInfoMatches');
     const acceptedEl = document.getElementById('trialInfoAccepted');
-    const pendingEl  = document.getElementById('trialInfoPending');
+    const pendingEl = document.getElementById('trialInfoPending');
     const declinedEl = document.getElementById('trialInfoDeclined');
     if (matchesEl) matchesEl.textContent = patients.length;
     const accepted = patients.filter(p => p.inquiry_status === 'accepted').length;
-    const pending  = patients.filter(p => p.inquiry_status === 'pending').length;
+    const pending = patients.filter(p => p.inquiry_status === 'pending').length;
     const declined = patients.filter(p => p.inquiry_status === 'declined').length;
     if (acceptedEl) acceptedEl.textContent = accepted;
-    if (pendingEl)  pendingEl.textContent  = pending;
+    if (pendingEl) pendingEl.textContent = pending;
     if (declinedEl) declinedEl.textContent = declined;
 
     if (!patients.length) {
@@ -1100,24 +1157,24 @@ async function loadResearcherPatients(trial_id) {
       return;
     }
     renderPatientCards(patients, container, trial_id);
-  } catch(e) {
+  } catch (e) {
     container.innerHTML = `<p class="text-muted" style="padding:24px;">Could not load patients: ${e.message}</p>`;
   }
 }
 
 function renderPatientCards(patients, container, trial_id = 'T001') {
   container.innerHTML = patients.map(p => {
-    const pct   = p.percentage;
+    const pct = p.percentage;
     const color = scoreColor(pct);
     const diagStr = (p.diagnoses || []).join(', ');
-    const labStr  = Object.entries(p.lab_values || {})
-      .map(([k,v]) => `${k}: ${v}`).join(' | ');
+    const labStr = Object.entries(p.lab_values || {})
+      .map(([k, v]) => `${k}: ${v}`).join(' | ');
 
     const inqBadge = p.has_inquiry
       ? `<span class="pill ${p.inquiry_status === 'accepted' ? 'pill-green' : p.inquiry_status === 'declined' ? 'pill-red' : 'pill-yellow'}">${p.inquiry_status === 'accepted' ? '✅ Accepted' : p.inquiry_status === 'declined' ? '❌ Declined' : '🔴 NEW INQUIRY'}</span>`
       : '';
 
-    const breakdown = (p.criteria_breakdown || []).slice(0,5).map(c =>
+    const breakdown = (p.criteria_breakdown || []).slice(0, 5).map(c =>
       `<span class="crit-badge ${c.status === 'PASS' ? 'crit-ok' : 'crit-fail'}">
         ${c.status === 'PASS' ? '✅' : '❌'} ${c.criterion.split(' ')[0]}
       </span>`
@@ -1129,7 +1186,7 @@ function renderPatientCards(patients, container, trial_id = 'T001') {
       <div class="patient-card-body">
         <div style="position:absolute;top:16px;right:16px;">${inqBadge}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span class="patient-id">#${p.patient_hash.slice(0,6)}</span>
+          <span class="patient-id">#${p.patient_hash.slice(0, 6)}</span>
           <div style="display:flex;align-items:center;gap:12px;">
             <span class="patient-score" style="color:${color};">${pct}%</span>
             <span class="pill pill-gray">${p.location_city || ''}</span>
@@ -1174,8 +1231,18 @@ async function respondToInquiry(patient_hash, trial_id, action) {
       await apiDeclineInquiry(inq.inquiry_id, note);
       showToast('Patient declined.');
     }
-    loadResearcherPatients(trial_id);
-  } catch(e) {
+
+    // Refresh UI based on current page
+    const page = window.location.pathname.split('/').pop();
+    if (page === 'researcher-inquiry.html') {
+      loadResearcherInquiries();
+    } else {
+      loadResearcherPatients(trial_id);
+    }
+
+    // Refresh the full page after a short delay to properly sync notification badges
+    setTimeout(() => { window.location.reload(); }, 1200);
+  } catch (e) {
     showToast(e.message, 'error');
   }
 }
@@ -1209,12 +1276,12 @@ async function loadResearcherDashboard() {
       try {
         const patients = await apiGetMatchedPatients(t.trial_id);
         totalMatches += patients.length;
-        const pending  = patients.filter(p => p.inquiry_status === 'pending').length;
+        const pending = patients.filter(p => p.inquiry_status === 'pending').length;
         const accepted = patients.filter(p => p.inquiry_status === 'accepted').length;
-        totalPending  += pending;
+        totalPending += pending;
         totalAccepted += accepted;
         trialInquiries[t.trial_id] = { matches: patients.length, pending, accepted };
-      } catch(_) {
+      } catch (_) {
         trialInquiries[t.trial_id] = { matches: 0, pending: 0, accepted: 0 };
       }
     }
@@ -1241,8 +1308,8 @@ async function loadResearcherDashboard() {
                 <span class="pill pill-gray" style="font-size:11px;">${t.disease_area}</span>
               </div>
               <div style="font-size:12px; color:var(--muted);">${info.matches} matches &nbsp;·&nbsp; ${info.pending > 0
-                ? `<span style="color:var(--error);">${info.pending} new inquiries 🔴</span>`
-                : '0 new inquiries'}</div>
+              ? `<span style="color:var(--error);">${info.pending} new inquiries 🔴</span>`
+              : '0 new inquiries'}</div>
             </div>
             <a href="researcher-trial.html" class="text-teal" style="font-size:12px; white-space:nowrap;">View Patients →</a>
           </div>`;
@@ -1264,8 +1331,71 @@ async function loadResearcherDashboard() {
         activityFeed.innerHTML = items.join('');
       }
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load researcher dashboard:', e.message);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE: RESEARCHER INQUIRY — load all inquiries for all trials
+   ══════════════════════════════════════════════════════════════ */
+async function loadResearcherInquiries() {
+  const container = document.getElementById('researcherInquiriesList');
+  if (!container) return;
+  try {
+    const trials = await apiGetTrials();
+    let allInquiries = [];
+    for (const t of trials) {
+      try {
+        const inqs = await apiGetResearcherInquiries(t.trial_id);
+        inqs.forEach(i => {
+          i.trial_title = t.title;
+          i.trial_id = t.trial_id; // Add missing trial_id here
+        });
+        allInquiries.push(...inqs);
+      } catch (e) { }
+    }
+
+    if (allInquiries.length === 0) {
+      container.innerHTML = '<p class="text-muted" style="padding:12px;">No inquiries yet. Inquiries will appear here when patients express interest in your trials.</p>';
+      return;
+    }
+
+    // Sort: Pending first, then by date (or score)
+    allInquiries.sort((a, b) => {
+      if (a.status === 'pending' && b.status !== 'pending') return -1;
+      if (a.status !== 'pending' && b.status === 'pending') return 1;
+      return (b.match_score || 0) - (a.match_score || 0);
+    });
+
+    container.innerHTML = allInquiries.map(p => {
+      const pct = p.match_score ? Math.round(p.match_score * 100) : 0;
+      const inqBadge = `<span class="pill ${p.status === 'accepted' ? 'pill-green' : p.status === 'declined' ? 'pill-red' : 'pill-yellow'}">${p.status === 'accepted' ? '✅ Accepted' : p.status === 'declined' ? '❌ Declined' : '🔴 PENDING'}</span>`;
+
+      return `
+      <div class="patient-card" style="display:block; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <h4 style="font-size:16px; margin-bottom:4px;">${p.trial_id} — ${p.trial_title}</h4>
+            <div class="text-muted" style="font-size:13px; margin-bottom:12px;">Patient #${p.patient_hash ? p.patient_hash.slice(0, 6) : 'Unknown'} • Match Score: ${pct}%</div>
+            ${p.patient_note ? `<div style="font-size:12px; font-style:italic; background:var(--bg); padding:10px; border-radius:6px; margin-bottom:12px; border-left:2px solid var(--primary);">"Patient note: ${p.patient_note}"</div>` : ''}
+            ${p.researcher_note ? `<div style="font-size:12px; font-style:italic; background:var(--bg); padding:10px; border-radius:6px; margin-bottom:12px; border-left:2px solid var(--success);">"Your note: ${p.researcher_note}"</div>` : ''}
+          </div>
+          ${inqBadge}
+        </div>
+        <div class="patient-actions" style="margin-top:0;">
+          ${p.status === 'pending' ? `
+            <button class="btn btn-success btn-sm" onclick="respondToInquiry('${p.patient_hash}', '${p.trial_id}', 'accept')">✅ Accept</button>
+            <button class="btn btn-danger btn-sm" onclick="respondToInquiry('${p.patient_hash}', '${p.trial_id}', 'decline')">❌ Decline</button>
+          ` : ''}
+          <a href="researcher-trial.html?trial=${p.trial_id}" class="btn btn-ghost btn-sm">View Patient in Trial →</a>
+        </div>
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    container.innerHTML = '<p class="text-muted" style="padding:12px;">Error loading inquiries.</p>';
+    console.warn('Could not load researcher inquiries', e.message);
   }
 }
 
@@ -1281,22 +1411,207 @@ async function loadAdminStats() {
       if (el) el.textContent = val;
     };
     // update stat cards if they have IDs
-    set('stat-patients',    stats.total_patients);
+    set('stat-patients', stats.total_patients);
     set('stat-researchers', stats.total_researchers);
-    set('stat-trials',      stats.total_trials);
-    set('stat-inquiries',   stats.total_inquiries);
-    set('stat-pending',     stats.inquiry_stats?.pending);
-    set('stat-accepted',    stats.inquiry_stats?.accepted);
-    set('stat-declined',    stats.inquiry_stats?.declined);
-  } catch(e) {
+    set('stat-trials', stats.total_trials);
+    set('stat-inquiries', stats.total_inquiries);
+    set('stat-pending', stats.inquiry_stats?.pending);
+    set('stat-accepted', stats.inquiry_stats?.accepted);
+    set('stat-declined', stats.inquiry_stats?.declined);
+  } catch (e) {
     console.warn('Could not load admin stats:', e.message);
   }
 }
 
 
 /* ══════════════════════════════════════════════════════════════
-   PAGE: ADMIN RESEARCHERS — list all researchers
+   PAGE: ADMIN LOGS — System wide activity feed
    ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   PAGE: ADMIN TRIALS & ADMIN LOGS
+   ══════════════════════════════════════════════════════════════ */
+
+function addChip(btn, type) {
+  const input = prompt(`Enter ${type} name:`);
+  if (!input) return;
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.innerHTML = `${input} <span class="chip-remove" onclick="this.parentElement.remove()">×</span>`;
+  btn.parentNode.insertBefore(chip, btn);
+}
+
+async function submitNewTrial(e) {
+  if (e) e.preventDefault();
+
+  const title = document.getElementById('addTrialTitle')?.value;
+  const phaseStr = document.getElementById('addTrialPhase')?.value;
+  const phase = phaseStr ? parseInt(phaseStr.replace('Phase ', '')) : 3;
+  const disease_area = document.getElementById('addTrialDisease')?.value;
+  const sponsor = document.getElementById('addTrialSponsor')?.value;
+  const inclusion_text = document.getElementById('addTrialInclusion')?.value;
+  const exclusion_text = document.getElementById('addTrialExclusion')?.value;
+
+  const locChips = document.getElementById('cityChips');
+  let locations = [];
+  if (locChips) {
+    locChips.querySelectorAll('.chip').forEach(c => {
+      locations.push(c.textContent.replace('×', '').trim());
+    });
+  }
+
+  if (!title || !sponsor || !inclusion_text) {
+    showToast('Please fill out Title, Sponsor, and Inclusion Criteria', 'warning');
+    return;
+  }
+
+  const data = {
+    title, phase, disease_area, sponsor, locations, inclusion_text, exclusion_text
+  };
+
+  try {
+    await apiAddTrial(data);
+    showToast('Trial created successfully!', 'success');
+    window.location.href = 'admin-trials.html';
+  } catch (err) {
+    showToast('Failed to create trial: ' + err.message, 'error');
+  }
+}
+
+async function handleDeactivateTrial(trial_id) {
+  if (!confirm(`Are you sure you want to deactivate Trial ${trial_id}?`)) return;
+  try {
+    await apiDeactivateTrial(trial_id);
+    showToast(`Trial ${trial_id} deactivated`, 'success');
+    renderTrialsFromAPI(); // Refresh the list
+  } catch (e) {
+    showToast('Failed to deactivate trial', 'error');
+  }
+}
+
+async function loadAdminLogs() {
+  const container = document.getElementById('adminLogsContainer');
+  if (!container) return;
+  try {
+    const logs = await apiGetAdminLogs();
+    if (!logs || logs.length === 0) {
+      container.innerHTML = '<p class="text-muted" style="text-align:center; padding:40px;">No activity logs found yet.</p>';
+      return;
+    }
+
+    // Convert to modern minimalist log rows
+    container.innerHTML = logs.map(l => {
+      let icon = '📝';
+      let dotColor = 'var(--muted)';
+
+      if (l.type.includes('signup')) { icon = '👤'; dotColor = '#60a5fa'; }
+      if (l.type.includes('health')) { icon = '🏥'; dotColor = 'var(--primary)'; }
+      if (l.type.includes('sent')) { icon = '🔔'; dotColor = 'var(--warning)'; }
+      if (l.type.includes('updated')) {
+        icon = l.status === 'success' ? '✅' : '❌';
+        dotColor = l.status === 'success' ? 'var(--success)' : 'var(--error)';
+      }
+
+      return `
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); border-radius:6px; margin-bottom:4px;">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="background:var(--bg); border:1px solid var(--border); width:32px; height:32px; border-radius:100px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 10px ${dotColor}22;">
+            ${icon}
+          </div>
+          <div>
+            <div style="font-size:14px; font-weight:500; color:#fff;">${l.message}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">Type: <span style="color:${dotColor}">${l.type}</span></div>
+          </div>
+        </div>
+        <div class="text-muted" style="font-size:12px; white-space:nowrap; text-align:right;">
+          ${l.timestamp_str}
+        </div>
+      </div>
+      `;
+    }).join('');
+  } catch (e) {
+    container.innerHTML = '<p class="text-muted" style="text-align:center; padding:40px;">Failed to load logs.</p>';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE: ADMIN REPORTS — Real aggregated data load
+   ══════════════════════════════════════════════════════════════ */
+async function loadAdminReports() {
+  try {
+    const stats = await apiGetStats();
+
+    // KPIs
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('rep-total-matches', stats.total_matches);
+
+    let totalInq = stats.total_inquiries;
+    let accepted = stats.inquiry_stats?.accepted || 0;
+    let acceptRate = totalInq > 0 ? Math.round((accepted / totalInq) * 100) : 0;
+    set('rep-accept-rate', acceptRate + '%');
+
+    set('rep-active-patients', stats.total_patients);
+
+    // Live Matches Bar Chart Setup 
+    // We will dynamically fetch all trials and figure out matches per trial
+    const trials = await apiGetTrials();
+    const barContainer = document.getElementById('rep-bars');
+    if (barContainer) {
+      if (trials.length === 0) {
+        barContainer.innerHTML = '<p class="text-muted">No trials available.</p>';
+      } else {
+        // Fetch matches per trial
+        let trialStats = [];
+        for (const t of trials) {
+          try {
+            const patients = await apiGetMatchedPatients(t.trial_id);
+            trialStats.push({ id: t.trial_id, count: patients.length, phase: t.phase });
+          } catch (e) {
+            trialStats.push({ id: t.trial_id, count: 0, phase: t.phase });
+          }
+        }
+
+        // Sort by count desc, slice top 6
+        trialStats.sort((a, b) => b.count - a.count);
+        trialStats = trialStats.slice(0, 6);
+        const maxMatch = Math.max(...trialStats.map(s => s.count), 1); // avoid /0
+
+        barContainer.innerHTML = trialStats.map(s => {
+          let pct = (s.count / maxMatch) * 100;
+          return `<div class="bar-row"><span class="bar-label">${s.id}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;">${s.count}</div></div></div>`;
+        }).join('');
+      }
+    }
+
+    // Live Status Donut Chart Setup
+    const pending = stats.inquiry_stats?.pending || 0;
+    const declined = stats.inquiry_stats?.declined || 0;
+    const acceptDonut = document.getElementById('rep-donut-status');
+    const acceptLegend = document.getElementById('rep-legend-status');
+
+    if (acceptDonut && totalInq > 0) {
+      const aPct = Math.round((accepted / totalInq) * 100);
+      const pPct = Math.round((pending / totalInq) * 100);
+      const dPct = 100 - aPct - pPct;
+
+      acceptDonut.style.background = `conic-gradient(var(--success) 0% ${aPct}%, var(--warning) ${aPct}% ${aPct + pPct}%, var(--error) ${aPct + pPct}% 100%)`;
+
+      if (acceptLegend) {
+        acceptLegend.innerHTML = `
+          <div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div>Accepted — ${aPct}%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--warning);"></div>Pending — ${pPct}%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--error);"></div>Declined — ${dPct}%</div>
+        `;
+      }
+    } else if (acceptDonut) {
+      acceptDonut.style.background = `conic-gradient(var(--border) 0% 100%)`;
+      if (acceptLegend) acceptLegend.innerHTML = '<p class="text-muted" style="font-size:12px">No inquiries yet.</p>';
+    }
+
+  } catch (e) {
+    console.warn('Could not load reports', e);
+  }
+}
+
 async function loadAdminResearchers() {
   try {
     const users = await apiGetAllUsers();
@@ -1328,7 +1643,7 @@ async function loadAdminResearchers() {
     }
 
     tbody.innerHTML = researchers.map(r => {
-      const date = new Date(r.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' });
+      const date = new Date(r.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
       return `<tr>
         <td><strong>${r.full_name}</strong></td>
         <td>${r.email}</td>
@@ -1337,7 +1652,7 @@ async function loadAdminResearchers() {
         <td><span class="pill pill-green" style="font-size:11px;">Active</span></td>
       </tr>`;
     }).join('');
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load researchers:', e.message);
     const tbody = document.getElementById('researchersTableBody');
     if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="text-align:center;padding:20px;">Error loading researchers.</td></tr>';
@@ -1369,11 +1684,12 @@ async function loadPatientDashboard() {
     return;
   }
 
-  // Load matches count
+  // Load matches count — show only eligible matches on stat card
   try {
     const matches = await apiGetMatches(patient_hash);
-    set('pstat-matches', matches.length);
-  } catch(_) {
+    const eligibleMatches = matches.filter(m => m.is_eligible);
+    set('pstat-matches', eligibleMatches.length);
+  } catch (_) {
     set('pstat-matches', '0');
   }
 
@@ -1404,13 +1720,13 @@ async function loadPatientDashboard() {
       container.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">` +
         inquiries.map(inq => {
           const statusClass = inq.status === 'accepted' ? 'pill-green' :
-                              inq.status === 'declined' ? 'pill-red' : 'pill-yellow';
-          const statusIcon  = inq.status === 'accepted' ? '✅ Accepted' :
-                              inq.status === 'declined' ? '❌ Declined' : '⏳ Pending';
+            inq.status === 'declined' ? 'pill-red' : 'pill-yellow';
+          const statusIcon = inq.status === 'accepted' ? '✅ Accepted' :
+            inq.status === 'declined' ? '❌ Declined' : '⏳ Pending';
           const scoreColor = inq.match_score >= 0.8 ? 'var(--success)' :
-                             inq.match_score >= 0.6 ? 'var(--warning)' : 'var(--error)';
+            inq.match_score >= 0.6 ? 'var(--warning)' : 'var(--error)';
           const scorePct = Math.round(inq.match_score * 100);
-          const date = new Date(inq.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' });
+          const date = new Date(inq.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 
           return `
           <div class="card" style="position:relative;">
@@ -1436,9 +1752,9 @@ async function loadPatientDashboard() {
               : ''}
           </div>`;
         }).join('') +
-      `</div>`;
+        `</div>`;
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load patient dashboard:', e.message);
     if (container) container.innerHTML = '<p class="text-muted" style="padding:20px;">Error loading enquiries.</p>';
   }
@@ -1478,11 +1794,12 @@ async function renderTrialsFromAPI(containerId = 'trialsContainer') {
           </div>
         </div>
         <div class="row-actions">
-          <button class="btn btn-ghost btn-sm">Edit</button>
-          <button class="btn btn-sm" style="background:none;border:1px solid var(--border);color:var(--muted);">Criteria</button>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Edit feature coming soon!', 'info')">Edit</button>
+          <button class="btn btn-sm" style="background:none;border:1px solid var(--border);color:var(--muted);" onclick="showToast('View criteria popup coming soon!', 'info')">Criteria</button>
+          <button class="btn btn-sm btn-danger-outline" onclick="handleDeactivateTrial('${t.trial_id}')">Deactivate</button>
         </div>
       </div>`).join('');
-  } catch(e) {
+  } catch (e) {
     console.warn('Could not load trials from API, using static data:', e.message);
     renderTrials(containerId); // fallback to static
   }
@@ -1493,21 +1810,21 @@ async function renderTrialsFromAPI(containerId = 'trialsContainer') {
    STATIC FALLBACK DATA (used when API unreachable)
    ══════════════════════════════════════════════════════════════ */
 const TRIALS_DATA = [
-  { id:'T001', name:'Diabetes Glucose Control Study',    phase:'Phase 3', disease:'Endocrinology', status:'Active', sponsor:'PharmaCo Research', locs:'Mumbai · Delhi · Pune',   matches:12, inq:3 },
-  { id:'T002', name:'Hypertension Management Trial',     phase:'Phase 2', disease:'Cardiology',    status:'Active', sponsor:'HeartCare Labs',     locs:'Mumbai · Bangalore',      matches:9,  inq:1 },
-  { id:'T003', name:'Breast Cancer Immunotherapy Study', phase:'Phase 3', disease:'Oncology',      status:'Active', sponsor:'Tata Memorial',      locs:'Mumbai · Delhi',          matches:7,  inq:2 },
-  { id:'T004', name:'COPD Bronchodilator Efficacy',      phase:'Phase 2', disease:'Pulmonology',   status:'Active', sponsor:'LungCare Inc.',      locs:'Delhi · Chennai',         matches:5,  inq:0 },
-  { id:'T005', name:'RA Biologic Therapy Study',         phase:'Phase 2', disease:'Rheumatology',  status:'Active', sponsor:'AIIMS Research',     locs:'Mumbai · Pune',           matches:8,  inq:0 },
-  { id:'T006', name:'Depression SSRI Optimization',      phase:'Phase 3', disease:'Psychiatry',    status:'Active', sponsor:'MindHealth Co.',     locs:'Bangalore · Chennai',     matches:11, inq:4 },
-  { id:'T007', name:'Asthma Inhaler Comparison',         phase:'Phase 4', disease:'Pulmonology',   status:'Active', sponsor:'BreatheEasy',        locs:'All Cities',              matches:6,  inq:1 },
-  { id:'T008', name:'CKD Dialysis Frequency Study',      phase:'Phase 3', disease:'Nephrology',    status:'Active', sponsor:'KidneyFirst',        locs:'Hyderabad · Kolkata',     matches:4,  inq:0 },
-  { id:'T009', name:"Parkinson's Neuroprotection",       phase:'Phase 2', disease:'Neurology',     status:'Active', sponsor:'NeuroLabs',          locs:'Mumbai · Bangalore',      matches:3,  inq:1 },
-  { id:'T010', name:'Lupus Biologics Study',             phase:'Phase 1', disease:'Immunology',    status:'Active', sponsor:'AutoImm Ltd.',       locs:'Mumbai',                  matches:2,  inq:0 },
-  { id:'T011', name:'Type 1 Diabetes Insulin Study',     phase:'Phase 3', disease:'Endocrinology', status:'Inactive', sponsor:'DiabCare',         locs:'Delhi · Chennai',         matches:0,  inq:0 },
-  { id:'T012', name:'Cardiac Rehab Protocol Study',      phase:'Phase 4', disease:'Cardiology',    status:'Active', sponsor:'HeartCare Labs',     locs:'Mumbai · Pune',           matches:7,  inq:2 },
-  { id:'T013', name:'Thyroid Hormone Optimization',      phase:'Phase 2', disease:'Endocrinology', status:'Active', sponsor:'ThyroCare',          locs:'Ahmedabad · Pune',        matches:5,  inq:1 },
-  { id:'T014', name:'Anemia Iron Therapy Trial',         phase:'Phase 3', disease:'Hematology',    status:'Active', sponsor:'BloodCare',          locs:'All Cities',              matches:9,  inq:3 },
-  { id:'T015', name:'COPD Pulmonary Rehabilitation',     phase:'Phase 3', disease:'Pulmonology',   status:'Active', sponsor:'RespiCare',          locs:'Ahmedabad · Kolkata · Delhi', matches:8, inq:2 },
+  { id: 'T001', name: 'Diabetes Glucose Control Study', phase: 'Phase 3', disease: 'Endocrinology', status: 'Active', sponsor: 'PharmaCo Research', locs: 'Mumbai · Delhi · Pune', matches: 12, inq: 3 },
+  { id: 'T002', name: 'Hypertension Management Trial', phase: 'Phase 2', disease: 'Cardiology', status: 'Active', sponsor: 'HeartCare Labs', locs: 'Mumbai · Bangalore', matches: 9, inq: 1 },
+  { id: 'T003', name: 'Breast Cancer Immunotherapy Study', phase: 'Phase 3', disease: 'Oncology', status: 'Active', sponsor: 'Tata Memorial', locs: 'Mumbai · Delhi', matches: 7, inq: 2 },
+  { id: 'T004', name: 'COPD Bronchodilator Efficacy', phase: 'Phase 2', disease: 'Pulmonology', status: 'Active', sponsor: 'LungCare Inc.', locs: 'Delhi · Chennai', matches: 5, inq: 0 },
+  { id: 'T005', name: 'RA Biologic Therapy Study', phase: 'Phase 2', disease: 'Rheumatology', status: 'Active', sponsor: 'AIIMS Research', locs: 'Mumbai · Pune', matches: 8, inq: 0 },
+  { id: 'T006', name: 'Depression SSRI Optimization', phase: 'Phase 3', disease: 'Psychiatry', status: 'Active', sponsor: 'MindHealth Co.', locs: 'Bangalore · Chennai', matches: 11, inq: 4 },
+  { id: 'T007', name: 'Asthma Inhaler Comparison', phase: 'Phase 4', disease: 'Pulmonology', status: 'Active', sponsor: 'BreatheEasy', locs: 'All Cities', matches: 6, inq: 1 },
+  { id: 'T008', name: 'CKD Dialysis Frequency Study', phase: 'Phase 3', disease: 'Nephrology', status: 'Active', sponsor: 'KidneyFirst', locs: 'Hyderabad · Kolkata', matches: 4, inq: 0 },
+  { id: 'T009', name: "Parkinson's Neuroprotection", phase: 'Phase 2', disease: 'Neurology', status: 'Active', sponsor: 'NeuroLabs', locs: 'Mumbai · Bangalore', matches: 3, inq: 1 },
+  { id: 'T010', name: 'Lupus Biologics Study', phase: 'Phase 1', disease: 'Immunology', status: 'Active', sponsor: 'AutoImm Ltd.', locs: 'Mumbai', matches: 2, inq: 0 },
+  { id: 'T011', name: 'Type 1 Diabetes Insulin Study', phase: 'Phase 3', disease: 'Endocrinology', status: 'Inactive', sponsor: 'DiabCare', locs: 'Delhi · Chennai', matches: 0, inq: 0 },
+  { id: 'T012', name: 'Cardiac Rehab Protocol Study', phase: 'Phase 4', disease: 'Cardiology', status: 'Active', sponsor: 'HeartCare Labs', locs: 'Mumbai · Pune', matches: 7, inq: 2 },
+  { id: 'T013', name: 'Thyroid Hormone Optimization', phase: 'Phase 2', disease: 'Endocrinology', status: 'Active', sponsor: 'ThyroCare', locs: 'Ahmedabad · Pune', matches: 5, inq: 1 },
+  { id: 'T014', name: 'Anemia Iron Therapy Trial', phase: 'Phase 3', disease: 'Hematology', status: 'Active', sponsor: 'BloodCare', locs: 'All Cities', matches: 9, inq: 3 },
+  { id: 'T015', name: 'COPD Pulmonary Rehabilitation', phase: 'Phase 3', disease: 'Pulmonology', status: 'Active', sponsor: 'RespiCare', locs: 'Ahmedabad · Kolkata · Delhi', matches: 8, inq: 2 },
 ];
 
 function renderTrials(containerId = 'trialsContainer') {
@@ -1532,7 +1849,7 @@ function renderTrials(containerId = 'trialsContainer') {
       <div class="row-actions">
         <button class="btn btn-ghost btn-sm">Edit</button>
         <button class="btn btn-sm" style="background:none;border:1px solid var(--border);color:var(--muted)">Criteria</button>
-        <button class="btn btn-sm btn-danger-outline">Deactivate</button>
+        <button class="btn btn-sm btn-danger-outline" onclick="handleDeactivateTrial('${t.id || t.trial_id}')">Deactivate</button>
       </div>
     </div>`).join('');
 }
@@ -1555,6 +1872,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const page = window.location.pathname.split('/').pop();
 
+  if (window._session && window._session.role === 'researcher') {
+    // Dynamic notification badge handling
+    const updateNotificationBadge = async () => {
+      const bEl1 = document.querySelectorAll('.notif-badge');
+      const bEl2 = document.querySelectorAll('.notif-btn');
+      bEl2.forEach(btn => btn.addEventListener('click', () => { window.location.href = 'researcher-inquiry.html'; }));
+
+      if (!bEl1.length) return;
+      try {
+        const trials = await apiGetTrials();
+        let totalPending = 0;
+        for (const t of trials) {
+          try {
+            const inqs = await apiGetResearcherInquiries(t.trial_id);
+            totalPending += inqs.filter(i => i.status === 'pending').length;
+          } catch (e) { }
+        }
+        bEl1.forEach(badge => {
+          badge.textContent = totalPending;
+          badge.style.display = totalPending > 0 ? 'inline-block' : 'none';
+        });
+      } catch (e) { }
+    };
+    updateNotificationBadge();
+  }
+
   if (page === 'admin-trials.html') {
     renderTrialsFromAPI();
   }
@@ -1567,16 +1910,29 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAdminResearchers();
   }
 
+  if (page === 'admin-reports.html') {
+    loadAdminReports();
+  }
+
+  if (page === 'admin-logs.html') {
+    loadAdminLogs();
+  }
+
   if (page === 'researcher-dashboard.html') {
     loadResearcherDashboard();
   }
 
+  if (page === 'researcher-inquiry.html') {
+    loadResearcherInquiries();
+  }
+
   if (page === 'patient-results.html') {
-    loadPatientResults();
+    // Restore patient_hash from server first, then load
+    apiRestorePatientHash().then(() => loadPatientResults());
   }
 
   if (page === 'patient-dashboard.html') {
-    loadPatientDashboard();
+    apiRestorePatientHash().then(() => loadPatientDashboard());
   }
 
   if (page === 'patient-upload.html') {
@@ -1596,19 +1952,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (page === 'patient-form.html') {
-    // wire Find Trials button
-    const btn = document.querySelector('a[href="patient-results.html"]');
-    if (btn) {
-      btn.addEventListener('click', e => {
-        e.preventDefault();
-        submitPatientForm();
-      });
-    }
+    // Restore patient_hash so if user re-opens form, we can upsert cleanly
+    apiRestorePatientHash();
   }
 
   if (page === 'researcher-trial.html') {
+    // Check if trial is specified in the URL params
+    const params = new URLSearchParams(window.location.search);
+    const specificTrial = params.get('trial');
+
     // Populate trial selector from API and then load patients
-    populateTrialSelector();
+    populateTrialSelector(specificTrial);
     const selector = document.getElementById('trialSelector');
     if (selector) {
       selector.addEventListener('change', () => loadResearcherPatients(selector.value));
@@ -1637,8 +1991,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Navbar user display + welcome headings
   const fullName = window._session.full_name;
-  const role     = window._session.role;
-  const navUser  = document.getElementById('navUserDisplay');
+  const role = window._session.role;
+  const navUser = document.getElementById('navUserDisplay');
   if (navUser && role === 'admin') {
     navUser.textContent = 'Welcome, Admin';
   } else if (navUser && fullName) {

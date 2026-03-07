@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClinMatch AI — Manage Trials</title>
+  <title>ClinMatch AI — Activity Logs</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
         <div class="dash-links">
           <a href="admin-dashboard.html">Dashboard</a>
           <a href="admin-researchers.html">Researchers</a>
-          <a href="admin-trials.html" class="active">Trials</a>
+          <a href="admin-trials.html">Trials</a>
           <a href="admin-reports.html">Reports</a>
-          <a href="admin-logs.html">Activity Logs</a>
+          <a href="admin-logs.html" class="active">Activity Logs</a>
         </div>
       </div>
       <div class="dash-right">
@@ -36,34 +36,22 @@
     </div>
   </nav>
 
-  <div style="max-width:1200px; margin:0 auto; padding:36px 32px;">
+  <div style="max-width:1000px; margin:0 auto; padding:36px 32px;">
 
-    <div class="page-header">
-      <h1>Clinical Trials</h1>
-      <a href="admin-add-trial.html" class="btn btn-primary">+ Add New Trial</a>
+    <!-- HEADER -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+      <h1 style="font-size:26px;">Platform Activity Logs</h1>
+      <div>
+        <span class="text-muted" style="margin-right:12px; font-size:13px;">Live view of all system activity</span>
+        <button class="btn btn-ghost btn-sm" onclick="loadAdminLogs()">🔄 Refresh</button>
+      </div>
     </div>
 
-    <!-- SEARCH BAR -->
-    <div class="search-bar" style="margin-bottom:16px;">
-      <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search trials by name, disease, sponsor...">
-    </div>
-
-    <!-- FILTERS -->
-    <div class="filter-row">
-      <select class="filter-select"><option>All Phases</option><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option><option>Phase 4</option></select>
-      <select class="filter-select"><option>All Diseases</option><option>Endocrinology</option><option>Cardiology</option><option>Oncology</option></select>
-      <select class="filter-select"><option>Active Only</option><option>All Statuses</option><option>Inactive</option></select>
-    </div>
-
-    <!-- TRIALS LIST (rendered by JS) -->
-    <div id="trialsContainer"></div>
-
-    <!-- PAGINATION -->
-    <div class="pagination">
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">→</button>
+    <!-- LOGS CONTAINER -->
+    <div class="card" style="padding:24px;">
+      <div id="adminLogsContainer" style="display:flex; flex-direction:column; gap:16px;">
+        <p class="text-muted" style="text-align:center; padding:40px;">Loading logs...</p>
+      </div>
     </div>
 
   </div>
